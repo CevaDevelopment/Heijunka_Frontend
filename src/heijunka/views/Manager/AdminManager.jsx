@@ -7,7 +7,8 @@ import {
   Box,
   Typography,
   Grid,
-  Button,
+  Button, // Se restaura el botón de Generar Heijunka
+  IconButton,
   Table,
   TableBody,
   TableCell,
@@ -19,13 +20,13 @@ import {
   DialogContent,
   DialogTitle,
 } from '@mui/material';
+import { Assignment } from '@mui/icons-material'; // Icono de asignar tarea
 import { useSites } from '../../api';
 import { useUsers } from '../../api/useUsers';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import dayjs from 'dayjs';
 import useClients from '../../api/useClients';
-import { id } from 'date-fns/locale';
 
 export const AdminManager = () => {
   const { sites, loading: loadingSites, error: errorSites } = useSites();
@@ -43,8 +44,7 @@ export const AdminManager = () => {
   const [taskDescription, setTaskDescription] = useState('');
   const [selectedClientsSites, setSelectedClientsSites] = useState([]);
   const [selectedCollaborator, setSelectedCollaborator] = useState('');
-  const [editTask, setEditTask] = useState(null);
-  const [quantity, setQuantity] = useState(''); // Estado para la cantidad
+  const [quantity, setQuantity] = useState('');
 
   const intSite = () => {
     return { MCC1: 1, MCC2: 2, LOGIKA: 3 }[selectedSite] || null;
@@ -63,7 +63,7 @@ export const AdminManager = () => {
     if (selectedCollaborators.length > 0) {
       setGenerated(true);
     } else {
-      console.error("No hay colaboradores seleccionados.");
+      console.error('No hay colaboradores seleccionados.');
     }
   };
 
@@ -89,25 +89,24 @@ export const AdminManager = () => {
     handleClientsSites();
     setSelectedClientsSites([]);
     setTaskDescription('');
-    setTaskDescription('');
-    setQuantity(''); // Reiniciar la cantidad al abrir el modal
+    setQuantity('');
   };
 
   const handleCloseModal = () => {
     setOpenModal(false);
     setTaskDescription('');
     setSelectedClientsSites([]);
-    setQuantity(''); // Reiniciar la cantidad al cerrar el modal
+    setQuantity('');
   };
 
   const handleAddTask = () => {
     if (selectedHour && taskDescription && selectedClientsSites.length > 0) {
       const newTask = {
         description: taskDescription,
-        clients: selectedClientsSites, // Almacena los clientes seleccionados
-        quantity: +quantity, // Añadir la cantidad como entero
+        clients: selectedClientsSites,
+        quantity: +quantity,
       };
-  
+
       setTasks((prevTasks) => ({
         ...prevTasks,
         [selectedHour]: {
@@ -118,10 +117,10 @@ export const AdminManager = () => {
           ],
         },
       }));
-  
+
       handleCloseModal();
     } else {
-      console.error("No hay hora seleccionada o descripción vacía para agregar la tarea.");
+      console.error('No hay hora seleccionada o descripción vacía para agregar la tarea.');
     }
   };
 
@@ -130,32 +129,7 @@ export const AdminManager = () => {
   };
 
   const handleSaveTasks = () => {
-    console.log("Tareas guardadas", tasks);
-  };
-
-  const handleEditTask = () => {
-    if (selectedHour && taskDescription && selectedClientsSites.length > 0) {
-      const updatedTask = {
-        description: taskDescription,
-        clients: selectedClientsSites,
-        quantity: +quantity, // Añadir la cantidad como entero
-      };
-
-      setTasks((prevTasks) => ({
-        ...prevTasks,
-        [selectedHour]: {
-          ...prevTasks[selectedHour],
-          [selectedCollaborator]: prevTasks[selectedHour]?.[selectedCollaborator].map((t) =>
-            t === editTask.task ? updatedTask : t
-          ),
-        },
-      }));
-
-      handleCloseModal();
-      setEditTask(null); // Reiniciar el estado de edición
-    } else {
-      console.error("No hay hora seleccionada o descripción vacía para editar la tarea.");
-    }
+    console.log('Tareas guardadas', tasks);
   };
 
   if (loadingSites) {
@@ -178,24 +152,25 @@ export const AdminManager = () => {
   return (
     <Box
       sx={{
-        width: "100%",
-        height: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
+        width: '100%',
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
       }}
     >
+      {/* Sitios */}
       <FormControl fullWidth sx={{ mb: 2 }}>
         <Select
           value={selectedSite}
           onChange={(e) => setSelectedSite(e.target.value)}
           displayEmpty
-          inputProps={{ "aria-label": "Seleccionar Sitio" }}
+          inputProps={{ 'aria-label': 'Seleccionar Sitio' }}
           sx={{
             mb: 2,
             borderRadius: 2,
-            backgroundColor: "#f5f5f5",
-            padding: "8px",
+            backgroundColor: '#f5f5f5',
+            padding: '8px',
           }}
         >
           <MenuItem value="" disabled>
@@ -209,6 +184,7 @@ export const AdminManager = () => {
         </Select>
       </FormControl>
 
+      {/* Colaboradores */}
       <FormControl fullWidth sx={{ mb: 2 }} disabled={!selectedSite}>
         {loadingUsers ? (
           <CircularProgress />
@@ -218,12 +194,12 @@ export const AdminManager = () => {
             value={selectedCollaborators}
             onChange={(e) => setSelectedCollaborators(e.target.value)}
             displayEmpty
-            inputProps={{ "aria-label": "Seleccionar Colaborador" }}
+            inputProps={{ 'aria-label': 'Seleccionar Colaborador' }}
             sx={{
               mb: 2,
               borderRadius: 2,
-              backgroundColor: "#f5f5f5",
-              padding: "8px",
+              backgroundColor: '#f5f5f5',
+              padding: '8px',
             }}
           >
             <MenuItem value="" disabled>
@@ -232,8 +208,7 @@ export const AdminManager = () => {
             {collaborators.length > 0 ? (
               collaborators.map((collaborator) => (
                 <MenuItem key={collaborator.id} value={collaborator.id}>
-                  {collaborator.first_name}{" "}
-                  {/* Mostrar el nombre del colaborador */}
+                  {collaborator.first_name}
                 </MenuItem>
               ))
             ) : (
@@ -243,10 +218,11 @@ export const AdminManager = () => {
         )}
       </FormControl>
 
+      {/* Heijunka */}
       <Grid container spacing={2}>
         <Grid item xs={6}>
           <Box
-            sx={{ backgroundColor: "#f5f5f5", borderRadius: 2, padding: "8px" }}
+            sx={{ backgroundColor: '#f5f5f5', borderRadius: 2, padding: '8px' }}
           >
             <DatePicker
               selected={startTime}
@@ -264,7 +240,7 @@ export const AdminManager = () => {
 
         <Grid item xs={6}>
           <Box
-            sx={{ backgroundColor: "#f5f5f5", borderRadius: 2, padding: "8px" }}
+            sx={{ backgroundColor: '#f5f5f5', borderRadius: 2, padding: '8px' }}
           >
             <DatePicker
               selected={endTime}
@@ -281,33 +257,27 @@ export const AdminManager = () => {
         </Grid>
       </Grid>
 
-      <Box
-        sx={{ display: "flex", justifyContent: "center", marginTop: "20px" }}
-      >
+      <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
         <Button
           variant="contained"
-          color="primary"
           onClick={handleGenerate}
-          disabled={
-            !startTime || !endTime || selectedCollaborators.length === 0
-          }
-          sx={{ padding: "10px 20px", borderRadius: "20px" }}
+          disabled={!startTime || !endTime || selectedCollaborators.length === 0}
         >
           Generar Heijunka
         </Button>
       </Box>
 
       {generated && (
-        <Box sx={{ marginTop: "40px", width: "100%" }}>
+        <Box sx={{ marginTop: '40px', width: '100%' }}>
           <Typography variant="h" align="center" sx={{ mb: 2 }}>
             Heijunka Box
           </Typography>
-          <Table sx={{ minWidth: 650, borderRadius: 2, overflow: "hidden" }}>
+          <Table sx={{ minWidth: 650, borderRadius: 2, overflow: 'hidden' }}>
             <TableHead>
               <TableRow>
                 <TableCell align="center">Colaborador</TableCell>
                 {hours.map((hour) => (
-                  <TableCell key={hour} align="center" sx={{ padding: "16px" }}>
+                  <TableCell key={hour} align="center" sx={{ padding: '16px' }}>
                     {hour}:00
                   </TableCell>
                 ))}
@@ -316,49 +286,28 @@ export const AdminManager = () => {
             <TableBody>
               {selectedCollaborators.map((collaboratorId) => {
                 const collaborator = collaborators.find(
-                  (c) => c.id === collaboratorId
+                  (col) => col.id === collaboratorId
                 );
                 return (
                   <TableRow key={collaboratorId}>
-                    <TableCell align="center">
-                      {collaborator?.first_name}
-                    </TableCell>
-                    {hours.map((hour) => {
-                      const tasksForHour = tasks[hour]?.[collaboratorId] || [];
-                      return (
-                        <TableCell key={hour} align="center">
-                          {tasksForHour.map((task, index) => (
-                            <Box
-                              key={index}
-                              sx={{ marginBottom: 1, textAlign: "left" }}
-                            >
-                              <Typography variant="body2">
-                                {task.description}
-                              </Typography>
-                              <Typography variant="body2">
-                                {task.clients
-                                  .map((clientId) => {
-                                    const client = clients.find(
-                                      (c) => c.id === clientId
-                                    );
-                                    return client ? client.name : null;
-                                  })
-                                  .join(", ")}
-                              </Typography>
-                            </Box>
-                          ))}
-                          <Button
-                            onClick={() =>
-                              handleOpenModal(hour, collaboratorId)
-                            }
-                            variant="contained"
-                            color="primary"
-                          >
-                            Asignar Tarea
-                          </Button>
-                        </TableCell>
-                      );
-                    })}
+                    <TableCell align="center">{collaborator.first_name}</TableCell>
+                    {hours.map((hour) => (
+                      <TableCell
+                        key={hour}
+                        align="center"
+                        sx={{
+                          backgroundColor: tasks[hour]?.[collaboratorId]
+                            ? '#D3D3D3' // Color gris
+                            : 'inherit',
+                        }}
+                      >
+                        <IconButton
+                          onClick={() => handleOpenModal(hour, collaboratorId)}
+                        >
+                          <Assignment />
+                        </IconButton>
+                      </TableCell>
+                    ))}
                   </TableRow>
                 );
               })}
@@ -367,53 +316,54 @@ export const AdminManager = () => {
         </Box>
       )}
 
+      {/* Modal para agregar tarea */}
       <Dialog open={openModal} onClose={handleCloseModal}>
-        <DialogTitle>Agregar Tarea para {selectedCollaborator}</DialogTitle>
+        <DialogTitle>Agregar Tarea</DialogTitle>
         <DialogContent>
           <TextField
-            autoFocus
-            margin="dense"
             label="Descripción de la tarea"
-            type="text"
             fullWidth
-            variant="outlined"
             value={taskDescription}
             onChange={(e) => setTaskDescription(e.target.value)}
+            sx={{ mb: 2 }}
           />
-          <Select
-            multiple
-            value={selectedClientsSites}
-            onChange={(e) => setSelectedClientsSites(e.target.value)}
-            displayEmpty
-            fullWidth
-            inputProps={{ "aria-label": "Seleccionar Clientes" }}
-            sx={{ mt: 2 }}
-          >
-            {clients.map((client) => (
-              <MenuItem key={client.id} value={client.id}>
-                {client.name}
+          <FormControl fullWidth sx={{ mb: 2 }}>
+            <Select
+              multiple
+              value={selectedClientsSites}
+              onChange={(e) => setSelectedClientsSites(e.target.value)}
+              displayEmpty
+              inputProps={{ 'aria-label': 'Seleccionar Clientes' }}
+              sx={{
+                mb: 2,
+                borderRadius: 2,
+                backgroundColor: '#f5f5f5',
+                padding: '8px',
+              }}
+            >
+              <MenuItem value="" disabled>
+                Seleccionar Clientes
               </MenuItem>
-            ))}
-          </Select>
+              {clients.map((client) => (
+                <MenuItem key={client.id} value={client.id}>
+                  {client.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
           <TextField
             label="Cantidad"
-            type="number"
+            fullWidth
             value={quantity}
             onChange={(e) => setQuantity(e.target.value)}
-            fullWidth
+            type="number"
             sx={{ mb: 2 }}
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseModal} color="primary">
-            Cancelar
-          </Button>
-          <Button onClick={handleAddTask} color="primary">
-            Agregar
-          </Button>
+          <Button onClick={handleAddTask}>Agregar Tarea</Button>
         </DialogActions>
       </Dialog>
-
       <Box
         sx={{ display: "flex", justifyContent: "center", marginTop: "20px" }}
       >
@@ -436,8 +386,6 @@ export const AdminManager = () => {
     </Box>
   );
 };
-
-
 
 const inputStyle = {
   width: "100%",
