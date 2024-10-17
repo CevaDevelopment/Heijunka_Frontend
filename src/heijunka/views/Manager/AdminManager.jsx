@@ -28,6 +28,8 @@ import 'react-datepicker/dist/react-datepicker.css';
 import dayjs from 'dayjs';
 import useClients from '../../api/useClients';
 
+
+
 export const AdminManager = () => {
   const { sites, loading: loadingSites, error: errorSites } = useSites();
   const { loading: loadingUsers, filterCollaboratorsBySite } = useUsers();
@@ -152,11 +154,11 @@ export const AdminManager = () => {
   return (
     <Box
       sx={{
-        width: '100%',
-        height: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
+        width: "100%",
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
       }}
     >
       {/* Sitios */}
@@ -165,12 +167,12 @@ export const AdminManager = () => {
           value={selectedSite}
           onChange={(e) => setSelectedSite(e.target.value)}
           displayEmpty
-          inputProps={{ 'aria-label': 'Seleccionar Sitio' }}
+          inputProps={{ "aria-label": "Seleccionar Sitio" }}
           sx={{
             mb: 2,
             borderRadius: 2,
-            backgroundColor: '#f5f5f5',
-            padding: '8px',
+            backgroundColor: "#f5f5f5",
+            padding: "8px",
           }}
         >
           <MenuItem value="" disabled>
@@ -194,12 +196,12 @@ export const AdminManager = () => {
             value={selectedCollaborators}
             onChange={(e) => setSelectedCollaborators(e.target.value)}
             displayEmpty
-            inputProps={{ 'aria-label': 'Seleccionar Colaborador' }}
+            inputProps={{ "aria-label": "Seleccionar Colaborador" }}
             sx={{
               mb: 2,
               borderRadius: 2,
-              backgroundColor: '#f5f5f5',
-              padding: '8px',
+              backgroundColor: "#f5f5f5",
+              padding: "8px",
             }}
           >
             <MenuItem value="" disabled>
@@ -222,7 +224,7 @@ export const AdminManager = () => {
       <Grid container spacing={2}>
         <Grid item xs={6}>
           <Box
-            sx={{ backgroundColor: '#f5f5f5', borderRadius: 2, padding: '8px' }}
+            sx={{ backgroundColor: "#f5f5f5", borderRadius: 2, padding: "8px" }}
           >
             <DatePicker
               selected={startTime}
@@ -240,7 +242,7 @@ export const AdminManager = () => {
 
         <Grid item xs={6}>
           <Box
-            sx={{ backgroundColor: '#f5f5f5', borderRadius: 2, padding: '8px' }}
+            sx={{ backgroundColor: "#f5f5f5", borderRadius: 2, padding: "8px" }}
           >
             <DatePicker
               selected={endTime}
@@ -257,27 +259,31 @@ export const AdminManager = () => {
         </Grid>
       </Grid>
 
-      <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+      <Box
+        sx={{ display: "flex", justifyContent: "center", marginTop: "20px" }}
+      >
         <Button
           variant="contained"
           onClick={handleGenerate}
-          disabled={!startTime || !endTime || selectedCollaborators.length === 0}
+          disabled={
+            !startTime || !endTime || selectedCollaborators.length === 0
+          }
         >
           Generar Heijunka
         </Button>
       </Box>
 
       {generated && (
-        <Box sx={{ marginTop: '40px', width: '100%' }}>
+        <Box sx={{ marginTop: "40px", width: "100%" }}>
           <Typography variant="h" align="center" sx={{ mb: 2 }}>
             Heijunka Box
           </Typography>
-          <Table sx={{ minWidth: 650, borderRadius: 2, overflow: 'hidden' }}>
+          <Table sx={{ minWidth: 650, borderRadius: 2, overflow: "hidden" }}>
             <TableHead>
               <TableRow>
                 <TableCell align="center">Colaborador</TableCell>
                 {hours.map((hour) => (
-                  <TableCell key={hour} align="center" sx={{ padding: '16px' }}>
+                  <TableCell key={hour} align="center" sx={{ padding: "16px" }}>
                     {hour}:00
                   </TableCell>
                 ))}
@@ -290,15 +296,17 @@ export const AdminManager = () => {
                 );
                 return (
                   <TableRow key={collaboratorId}>
-                    <TableCell align="center">{collaborator.first_name}</TableCell>
+                    <TableCell align="center">
+                      {collaborator.first_name}
+                    </TableCell>
                     {hours.map((hour) => (
                       <TableCell
                         key={hour}
                         align="center"
                         sx={{
                           backgroundColor: tasks[hour]?.[collaboratorId]
-                            ? '#D3D3D3' // Color gris
-                            : 'inherit',
+                            ? "#D3D3D3" // Color gris si hay tarea
+                            : "inherit",
                         }}
                       >
                         <IconButton
@@ -306,6 +314,22 @@ export const AdminManager = () => {
                         >
                           <Assignment />
                         </IconButton>
+
+                        {/* Renderiza la tarea si existe */}
+                        {tasks[hour]?.[collaboratorId]?.map((task, index) => (
+                          <Box key={index} sx={{ mt: 1, textAlign: "left" }}>
+                            <Typography variant="body2">
+                              <strong>Descripción:</strong> {task.description}
+                            </Typography>
+                            <Typography variant="body2">
+                              <strong>Cliente:</strong>{" "}
+                              {task.clients.join(", ")}
+                            </Typography>
+                            <Typography variant="body2">
+                              <strong>Cantidad:</strong> {task.quantity}
+                            </Typography>
+                          </Box>
+                        ))}
                       </TableCell>
                     ))}
                   </TableRow>
@@ -333,12 +357,12 @@ export const AdminManager = () => {
               value={selectedClientsSites}
               onChange={(e) => setSelectedClientsSites(e.target.value)}
               displayEmpty
-              inputProps={{ 'aria-label': 'Seleccionar Clientes' }}
+              inputProps={{ "aria-label": "Seleccionar Clientes" }}
               sx={{
                 mb: 2,
                 borderRadius: 2,
-                backgroundColor: '#f5f5f5',
-                padding: '8px',
+                backgroundColor: "#f5f5f5",
+                padding: "8px",
               }}
             >
               <MenuItem value="" disabled>
