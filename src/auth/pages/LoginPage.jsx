@@ -1,8 +1,7 @@
 import { useEffect } from 'react';
 import Swal from 'sweetalert2';
 import { Link as RouterLink } from 'react-router-dom';
-import { Button, Grid, Link, TextField, Typography } from '@mui/material';
-import { Google } from '@mui/icons-material';
+import { Button, Grid, Link, TextField } from '@mui/material';
 import { AuthLayout } from '../layout/AuthLayout';
 import { useAuthStore, useForm } from '../../hooks';
 
