@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   MenuItem,
   Select,
@@ -7,7 +7,7 @@ import {
   Box,
   Typography,
   Grid,
-  Button, // Se restaura el botón de Generar Heijunka
+  Button,
   IconButton,
   Table,
   TableBody,
@@ -19,23 +19,26 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-} from '@mui/material';
-import { Assignment } from '@mui/icons-material'; // Icono de asignar tarea
-import { useSites } from '../../api';
-import { useUsers } from '../../api/useUsers';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
-import dayjs from 'dayjs';
-import useClients from '../../api/useClients';
-
-
+} from "@mui/material";
+import { Assignment } from "@mui/icons-material";
+import { useSites } from "../../api";
+import { useUsers } from "../../api/useUsers";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import dayjs from "dayjs";
+import useClients from "../../api/useClients";
 
 export const AdminManager = () => {
   const { sites, loading: loadingSites, error: errorSites } = useSites();
   const { loading: loadingUsers, filterCollaboratorsBySite } = useUsers();
-  const { fetchClientsBySite, clients, loading: loadingClients, errorClients } = useClients();
+  const {
+    fetchClientsBySite,
+    clients,
+    loading: loadingClients,
+    errorClients,
+  } = useClients();
   const [selectedCollaborators, setSelectedCollaborators] = useState([]);
-  const [selectedSite, setSelectedSite] = useState('');
+  const [selectedSite, setSelectedSite] = useState("");
   const [collaborators, setCollaborators] = useState([]);
   const [startTime, setStartTime] = useState(null);
   const [endTime, setEndTime] = useState(null);
@@ -43,10 +46,10 @@ export const AdminManager = () => {
   const [openModal, setOpenModal] = useState(false);
   const [selectedHour, setSelectedHour] = useState(null);
   const [tasks, setTasks] = useState({});
-  const [taskDescription, setTaskDescription] = useState('');
+  const [taskDescription, setTaskDescription] = useState("");
   const [selectedClientsSites, setSelectedClientsSites] = useState([]);
-  const [selectedCollaborator, setSelectedCollaborator] = useState('');
-  const [quantity, setQuantity] = useState('');
+  const [selectedCollaborator, setSelectedCollaborator] = useState("");
+  const [quantity, setQuantity] = useState("");
 
   const intSite = () => {
     return { MCC1: 1, MCC2: 2, LOGIKA: 3 }[selectedSite] || null;
@@ -65,7 +68,7 @@ export const AdminManager = () => {
     if (selectedCollaborators.length > 0) {
       setGenerated(true);
     } else {
-      console.error('No hay colaboradores seleccionados.');
+      console.error("No hay colaboradores seleccionados.");
     }
   };
 
@@ -82,6 +85,11 @@ export const AdminManager = () => {
     return [];
   };
 
+  const capitalizeFirstWord = (text) => {
+    if (!text) return text; // Verificar que el texto no esté vacío
+    return text.charAt(0).toUpperCase() + text.slice(1); // Convertir la primera letra a mayúscula
+  };
+
   const hours = calculateHours();
 
   const handleOpenModal = (hour, collaborator) => {
@@ -90,15 +98,15 @@ export const AdminManager = () => {
     setOpenModal(true);
     handleClientsSites();
     setSelectedClientsSites([]);
-    setTaskDescription('');
-    setQuantity('');
+    setTaskDescription("");
+    setQuantity("");
   };
 
   const handleCloseModal = () => {
     setOpenModal(false);
-    setTaskDescription('');
+    setTaskDescription("");
     setSelectedClientsSites([]);
-    setQuantity('');
+    setQuantity("");
   };
 
   const handleAddTask = () => {
@@ -107,6 +115,7 @@ export const AdminManager = () => {
         description: taskDescription,
         clients: selectedClientsSites,
         quantity: +quantity,
+        status: "pending", // Estado inicial
       };
 
       setTasks((prevTasks) => ({
@@ -122,7 +131,9 @@ export const AdminManager = () => {
 
       handleCloseModal();
     } else {
-      console.error('No hay hora seleccionada o descripción vacía para agregar la tarea.');
+      console.error(
+        "No hay hora seleccionada o descripción vacía para agregar la tarea."
+      );
     }
   };
 
@@ -131,7 +142,25 @@ export const AdminManager = () => {
   };
 
   const handleSaveTasks = () => {
-    console.log('Tareas guardadas', tasks);
+    console.log("Tareas guardadas", tasks);
+  };
+
+  const handleChangeTaskStatus = (hour, collaboratorId, index) => {
+    setTasks((prevTasks) => {
+      const updatedTasks = { ...prevTasks };
+      const task = updatedTasks[hour][collaboratorId][index];
+
+      // Cambia el estado cíclicamente
+      if (task.status === "pending") {
+        task.status = "in-progress";
+      } else if (task.status === "in-progress") {
+        task.status = "completed";
+      } else {
+        task.status = "pending";
+      }
+
+      return updatedTasks;
+    });
   };
 
   if (loadingSites) {
@@ -139,7 +168,11 @@ export const AdminManager = () => {
   }
 
   if (errorSites) {
-    return <Typography color="error">Error al cargar los sitios: {errorSites.message}</Typography>;
+    return (
+      <Typography color="error">
+        Error al cargar los sitios: {errorSites.message}
+      </Typography>
+    );
   }
 
   const handleClientsSites = () => fetchClientsBySite(intSite());
@@ -147,8 +180,13 @@ export const AdminManager = () => {
   if (loadingClients) {
     return <CircularProgress />;
   }
+
   if (errorClients) {
-    return <Typography color="error">Error al cargar clientes: {errorClients.message}</Typography>;
+    return (
+      <Typography color="error">
+        Error al cargar clientes: {errorClients.message}
+      </Typography>
+    );
   }
 
   return (
@@ -274,16 +312,43 @@ export const AdminManager = () => {
       </Box>
 
       {generated && (
-        <Box sx={{ marginTop: "40px", width: "100%" }}>
-          <Typography variant="h" align="center" sx={{ mb: 2 }}>
-            Heijunka Box
+        <Box sx={{ marginTop: "180px", width: "100%" }}>
+          <Typography variant="h4" textAlign="center" sx={{ mb: 10 }}>
+            Tareas Asignadas
           </Typography>
-          <Table sx={{ minWidth: 650, borderRadius: 2, overflow: "hidden" }}>
+          <Table
+            sx={{
+              border: "4px solid #333", // Borde oscuro por fuera
+              borderCollapse: "separate",
+              borderRadius: "15px",
+            }}
+          >
             <TableHead>
-              <TableRow>
-                <TableCell align="center">Colaborador</TableCell>
+              <TableRow style={{ backgroundColor: "#f4f4f4" }}>
+                <TableCell
+                  align="center"
+                  style={{
+                    fontSize: "18px",
+                    fontWeight: "bold",
+                    color: "#333",
+                    padding: "12px 16px",
+                    borderBottom: "2px solid #ddd",
+                  }}
+                >
+                  Colaboradores
+                </TableCell>
                 {hours.map((hour) => (
-                  <TableCell key={hour} align="center" sx={{ padding: "16px" }}>
+                  <TableCell
+                    key={hour}
+                    align="center"
+                    style={{
+                      fontSize: "16px",
+                      fontWeight: "bold",
+                      color: "#333",
+                      padding: "12px 16px",
+                      borderBottom: "2px solid #ddd",
+                    }}
+                  >
                     {hour}:00
                   </TableCell>
                 ))}
@@ -292,44 +357,126 @@ export const AdminManager = () => {
             <TableBody>
               {selectedCollaborators.map((collaboratorId) => {
                 const collaborator = collaborators.find(
-                  (col) => col.id === collaboratorId
+                  (collab) => collab.id === collaboratorId
                 );
+
                 return (
                   <TableRow key={collaboratorId}>
                     <TableCell align="center">
-                      {collaborator.first_name}
+                      {collaborator?.first_name}
                     </TableCell>
                     {hours.map((hour) => (
                       <TableCell
                         key={hour}
-                        align="center"
+                        align="left"
                         sx={{
-                          backgroundColor: tasks[hour]?.[collaboratorId]
-                            ? "#D3D3D3" // Color gris si hay tarea
-                            : "inherit",
+                          padding: "16px",
+                          borderRadius: "12px", // Bordes redondeados
+                          backgroundColor: "#f9f9f9", // Fondo suave
+                          position: "relative", // Permitir posicionamiento absoluto de los botones
+                          maxWidth: "140px", // Definir un ancho máximo para hacer la casilla más angosta
                         }}
                       >
-                        <IconButton
-                          onClick={() => handleOpenModal(hour, collaboratorId)}
-                        >
-                          <Assignment />
-                        </IconButton>
-
-                        {/* Renderiza la tarea si existe */}
+                        {/* Mostrar las tareas si existen */}
                         {tasks[hour]?.[collaboratorId]?.map((task, index) => (
-                          <Box key={index} sx={{ mt: 1, textAlign: "left" }}>
-                            <Typography variant="body2">
-                              <strong>Descripción:</strong> {task.description}
+                          <Box
+                            key={index}
+                            sx={{
+                              backgroundColor: "white",
+                              padding: "16px",
+                              flexDirection: "column",
+                              display: "flex",
+                              justifyContent: "space-between",
+                              border: "1px solid lightgray",
+                              borderRadius: "12px",
+                              marginTop: "12px",
+                              boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)", // Sombra
+                              position: "relative",
+                            }}
+                          >
+                            {/* Descripción y detalles de la tarea */}
+                            <Typography
+                              variant="body1"
+                              sx={{ fontWeight: "bold" }}
+                            >
+                              Tarea: {capitalizeFirstWord(task.description)}
                             </Typography>
-                            <Typography variant="body2">
-                              <strong>Cliente:</strong>{" "}
-                              {task.clients.join(", ")}
+                            <Typography variant="body2" sx={{ color: "#666" }}>
+                              Cliente:{" "}
+                              {task.clients
+                                .map(
+                                  (clientId) =>
+                                    clients.find(
+                                      (client) => client.id === clientId
+                                    )?.name
+                                )
+                                .join(", ")}
                             </Typography>
-                            <Typography variant="body2">
-                              <strong>Cantidad:</strong> {task.quantity}
+                            <Typography variant="body2" sx={{ color: "#666" }}>
+                              Cantidad: {task.quantity}
                             </Typography>
+
+                            {/* Botón de estado */}
+                            <Button
+                              variant="contained"
+                              sx={{
+                                backgroundColor:
+                                  task.status === "pending"
+                                    ? "gray"
+                                    : task.status === "in-progress"
+                                      ? "orange"
+                                      : "green",
+                                color: "white",
+                                minWidth: "30px",
+                                height: "30px",
+                                position: "absolute",
+                                top: "10px", // Colocar en la parte superior
+                                right: "10px", // Alineado a la derecha
+                                borderRadius: "50%",
+                              }}
+                              onClick={() =>
+                                handleChangeTaskStatus(
+                                  hour,
+                                  collaboratorId,
+                                  index
+                                )
+                              }
+                            ></Button>
+
+                            {/* Icono de agregar tarea */}
+                            <IconButton
+                              onClick={() =>
+                                handleOpenModal(hour, collaboratorId)
+                              }
+                              sx={{
+                                color: "primary.main",
+                                position: "absolute",
+                                bottom: "10px",
+                                right: "10px",
+                              }}
+                            >
+                              <Assignment />
+                            </IconButton>
                           </Box>
                         ))}
+
+                        {/* Siempre mostrar el icono de agregar tarea centrado si no hay tareas */}
+                        {!tasks[hour]?.[collaboratorId] && (
+                          <IconButton
+                            onClick={() =>
+                              handleOpenModal(hour, collaboratorId)
+                            }
+                            sx={{
+                              color: "primary.main",
+                              position: "absolute",
+                              bottom: "50%", // Centrar verticalmente
+                              left: "50%", // Centrar horizontalmente
+                              transform: "translate(-50%, 50%)", // Ajustar el centrado
+                            }}
+                          >
+                            <Assignment />
+                          </IconButton>
+                        )}
                       </TableCell>
                     ))}
                   </TableRow>
@@ -337,21 +484,47 @@ export const AdminManager = () => {
               })}
             </TableBody>
           </Table>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              marginTop: "30px",
+              mb: "50px",
+            }}
+          >
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={handleResetTasks}
+            >
+              Reiniciar Tareas
+            </Button>
+            <Button
+              variant="contained"
+              color="success"
+              onClick={handleSaveTasks}
+              sx={{ ml: 2 }}
+            >
+              Guardar Tareas
+            </Button>
+          </Box>
         </Box>
       )}
 
-      {/* Modal para agregar tarea */}
+      {/* Modal para agregar tareas */}
       <Dialog open={openModal} onClose={handleCloseModal}>
         <DialogTitle>Agregar Tarea</DialogTitle>
         <DialogContent>
           <TextField
+            autoFocus
+            margin="dense"
             label="Descripción de la tarea"
             fullWidth
+            variant="outlined"
             value={taskDescription}
             onChange={(e) => setTaskDescription(e.target.value)}
-            sx={{ mb: 2 }}
           />
-          <FormControl fullWidth sx={{ mb: 2 }}>
+          <FormControl fullWidth sx={{ mt: 2 }}>
             <Select
               multiple
               value={selectedClientsSites}
@@ -376,41 +549,23 @@ export const AdminManager = () => {
             </Select>
           </FormControl>
           <TextField
+            margin="dense"
             label="Cantidad"
+            type="number"
             fullWidth
+            variant="outlined"
             value={quantity}
             onChange={(e) => setQuantity(e.target.value)}
-            type="number"
-            sx={{ mb: 2 }}
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleAddTask}>Agregar Tarea</Button>
+          <Button onClick={handleCloseModal}>Cancelar</Button>
+          <Button onClick={handleAddTask}>Agregar</Button>
         </DialogActions>
       </Dialog>
-      <Box
-        sx={{ display: "flex", justifyContent: "center", marginTop: "20px" }}
-      >
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={handleResetTasks}
-        >
-          Reiniciar Tareas
-        </Button>
-        <Button
-          variant="contained"
-          color="success"
-          onClick={handleSaveTasks}
-          sx={{ ml: 2 }}
-        >
-          Guardar Tareas
-        </Button>
-      </Box>
     </Box>
   );
 };
-
 const inputStyle = {
   width: "100%",
   padding: "12px 15px",
@@ -427,6 +582,6 @@ const inputStyle = {
   },
   "&:disabled": {
     backgroundColor: "#e9ecef", // Color ide fondo al deshabilitar
-    color: "#6c757d", // Color del texto al deshabilitar
+    color: "#6c757d", // Color del textoiimport { id, mt } from 'date-fns/locale';
   },
 };
