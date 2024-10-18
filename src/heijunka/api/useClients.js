@@ -6,12 +6,11 @@ const useClients = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Cargar todos los clientes al inicio
   useEffect(() => {
     const fetchClients = async () => {
       setLoading(true);
       try {
-        const response = await heijunkaApi.get('/clients/'); // URL para obtener todos los clientes
+        const response = await heijunkaApi.get('/clients/');
         setClients(response.data);
       } catch (error) {
         setError(error);
@@ -19,18 +18,15 @@ const useClients = () => {
         setLoading(false);
       }
     };
-
     fetchClients();
   }, []);
 
-  // Función para buscar clientes por siteId
   const fetchClientsBySite = async (siteId) => {
-    if (!siteId) return; // Si no hay siteId, no hacer la solicitud
-
+    if (!siteId) return;
     setLoading(true);
     try {
       const response = await heijunkaApi.get(`/clients/?siteId=${siteId}`);
-      setClients(response.data); // Actualiza la lista de clientes con los filtrados
+      setClients(response.data);
     } catch (error) {
       setError(error);
     } finally {
@@ -42,9 +38,9 @@ const useClients = () => {
     try {
       const response = await heijunkaApi.post('/clients/', newClient);
       setClients((prevClients) => [...prevClients, response.data]);
-      console.log("Datos del Cliente", response.data);
+      console.log("Cliente agregado", response.data);
     } catch (error) {
-      console.error("Error adding client:", error.response?.data || error.message);
+      console.error("Error al agregar cliente:", error.response?.data || error.message);
       throw error;
     }
   };
@@ -54,18 +50,18 @@ const useClients = () => {
       await heijunkaApi.delete(`/clients/${id}/`);
       setClients((prevClients) => prevClients.filter(client => client.id !== id));
     } catch (error) {
-      console.error("Error deleting client:", error);
+      console.error("Error al eliminar cliente:", error);
     }
   };
 
   const editClient = async (clientId, updatedClient) => {
     try {
-      const response = await heijunkaApi.put(`/clients/${clientId}/`, updatedClient);
+      const response = await heijunkaApi.patch(`/clients/${clientId}/`, updatedClient);
       setClients((prevClients) =>
         prevClients.map(client => (client.id === clientId ? response.data : client))
       );
     } catch (error) {
-      console.error("Error editing client:", error);
+      console.error("Error al editar cliente:", error);
     }
   };
 

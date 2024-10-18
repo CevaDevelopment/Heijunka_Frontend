@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react";
 import { heijunkaApi } from "../../api";
 
-
 const useUsers = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchClients = async () => {
+    const fetchUsers = async () => {
       setLoading(true);
       try {
         const response = await heijunkaApi.get("/users/");
@@ -19,7 +18,7 @@ const useUsers = () => {
         setLoading(false);
       }
     };
-    fetchClients();
+    fetchUsers();
   }, []);
 
   const filterCollaboratorsBySite = (siteName) => {
@@ -28,50 +27,51 @@ const useUsers = () => {
     );
   };
 
+  // Agregar usuario (sin incluir contraseña)
   const addUsers = async (newUser) => {
     try {
       const userData = {
         email: newUser.email,
-        password: newUser.password,
         first_name: newUser.firstName,
         last_name: newUser.lastName,
         role: newUser.role,
-        status: newUser.status,
         site_id: newUser.site_id,
         is_active: newUser.is_active,
       };
       const response = await heijunkaApi.post("/users/", userData);
       setUsers((prevUsers) => [...prevUsers, response.data]);
-      console.log("Datos del Cliente", response.data);
+      console.log("Usuario agregado", response.data);
     } catch (error) {
       console.error(
-        "Error adding user:",
+        "Error al agregar usuario:",
         error.response?.data || error.message
       );
       throw error;
     }
   };
 
+  // Eliminar usuario
   const deleteUser = async (id) => {
     try {
       await heijunkaApi.delete(`/users/${id}/`);
       setUsers(users.filter((user) => user.id !== id));
     } catch (error) {
-      console.error("Error deleting user:", error);
+      console.error("Error al eliminar usuario:", error);
     }
   };
 
+  // Editar usuario (con PATCH)
   const editUsers = async (userId, updatedUser) => {
     try {
-      const response = await heijunkaApi.put(
-        `/users/${userId.id}/`,
+      const response = await heijunkaApi.patch(
+        `/users/${userId}/`,
         updatedUser
       );
       setUsers((prevUsers) =>
         prevUsers.map((user) => (user.id === userId ? response.data : user))
       );
     } catch (error) {
-      console.error("Error editing user:", error);
+      console.error("Error al editar usuario:", error);
     }
   };
 
@@ -85,6 +85,5 @@ const useUsers = () => {
     filterCollaboratorsBySite,
   };
 };
-
 
 export default useUsers;
