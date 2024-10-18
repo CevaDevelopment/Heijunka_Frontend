@@ -50,31 +50,6 @@ export const useAuthStore = () => {
         }
     }
 
-    // const checkAuthToken = async () => {
-    //     const token = localStorage.getItem('token');
-    //     const refreshToken = localStorage.getItem('refresh_token');
-    
-    //     // console.log('Token:', token);
-    //     // console.log('Refresh Token:', refreshToken);
-    
-    //     if (!token || !refreshToken) {
-    //         return dispatch(onLogout());
-    //     }
-    
-    //     try {
-    //         const { data } = await heijunkaApi.post('/auth/renew/', {
-    //             refresh: refreshToken, 
-    //         });
-    
-    //         localStorage.setItem('token', data.token); // Asegúrate de que el servidor devuelva el nuevo token
-    //         localStorage.setItem('token-init-date', new Date().getTime());
-    //         dispatch(onLogin({ name: data.name, id: data.id }));
-    //     } catch (error) {
-    //         console.error('Error al renovar el token:', error.response?.data || error.message);
-    //         localStorage.clear();
-    //         dispatch(onLogout());
-    //     }
-    // };
     const checkAuthToken = async () => {
         const refreshToken = localStorage.getItem('refresh_token');
       
@@ -101,8 +76,15 @@ export const useAuthStore = () => {
       
     
     
-    const startLogout = () => {
-        localStorage.clear();
+      const startLogout = () => {
+        // Elimina solo los datos de autenticación del localStorage
+        localStorage.removeItem('token');
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('token-init-date');
+        
+        // No eliminamos las tareas ni otros datos que quieras conservar
+    
+        // Despacha la acción para cerrar sesión
         dispatch(onLogout());
     };
     
