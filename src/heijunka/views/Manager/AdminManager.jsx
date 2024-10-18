@@ -80,17 +80,20 @@ export const AdminManager = () => {
       const savedCollaborators = localStorage.getItem("selectedCollaborators");
       const savedStartTime = localStorage.getItem("startTime");
       const savedEndTime = localStorage.getItem("endTime");
+      const savedGenerated = localStorage.getItem("generated");
 
       if (savedSite) setSelectedSite(savedSite);
       if (savedCollaborators) setSelectedCollaborators(JSON.parse(savedCollaborators));
       if (savedStartTime) setStartTime(new Date(savedStartTime));
       if (savedEndTime) setEndTime(new Date(savedEndTime));
+      if (savedGenerated) setGenerated(JSON.parse(savedGenerated)); 
 
       console.log("Formulario y tareas cargados desde localStorage");
     } else {
       // Si han pasado más de 48 horas, limpiamos el localStorage
       localStorage.removeItem("tasks");
       localStorage.removeItem("tasksSavedTime");
+      localStorage.removeItem("generated");
     }
   }
 }, []);
@@ -107,7 +110,8 @@ export const AdminManager = () => {
   const handleGenerate = () => {
     if (selectedCollaborators.length > 0 && startTime && endTime) {
       setGenerated(true);
-      setFormVisible(true);
+      setFormVisible(false);
+      localStorage.setItem("generated", true);
     } else {
       console.error("No hay colaboradores seleccionados.");
     }
@@ -115,6 +119,14 @@ export const AdminManager = () => {
 
   const toggleFormVisibility = () => {
     setFormVisible(!formVisible); // Cambia la visibilidad del formulario
+  };
+
+  const handleResetTasks = () => {
+    setTasks({});
+    localStorage.removeItem("tasks");
+    localStorage.removeItem("tasksSavedTime");
+    localStorage.removeItem("generated");
+    console.log("Tareas reiniciadas");
   };
 
   const calculateHours = () => {
@@ -183,12 +195,7 @@ export const AdminManager = () => {
     }
   };
 
-  const handleResetTasks = () => {
-    setTasks({});
-    localStorage.removeItem("tasks");
-    localStorage.removeItem("tasksSavedTime");
-    console.log("Tareas reiniciadas");
-  };
+  
 
   const handleSaveTasks = () => {
     const currentTime = new Date().getTime();
@@ -200,6 +207,7 @@ export const AdminManager = () => {
     localStorage.setItem("selectedCollaborators", JSON.stringify(selectedCollaborators));
     localStorage.setItem("startTime", startTime ? startTime.toISOString() : null);
     localStorage.setItem("endTime", endTime ? endTime.toISOString() : null);
+    localStorage.setItem("generated", JSON.stringify(generated));
 
     console.log("Tareas y valores del formulario guardados en localStorage");
   };
@@ -265,7 +273,7 @@ export const AdminManager = () => {
         </IconButton>
 
       {/* Formulario que se esconde al generar Heijunka */}
-      {!formVisible && (
+      {formVisible && (
         <>
       {/* Sitios */}
       <FormControl fullWidth sx={{ mb: 2 }}>

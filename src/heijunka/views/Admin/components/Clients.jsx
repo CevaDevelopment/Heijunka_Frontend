@@ -52,22 +52,22 @@ export const Clients = ({ clients, handleEditClient, handleDeleteClient }) => {
           <TableHead>
             <TableRow>
               <TableCell>
-                <Typography variant="h4" sx={{ fontWeight: "bold" }}>
+                <Typography variant="h6" sx={{ fontWeight: "bold" }}>
                     Site
                 </Typography>
               </TableCell>
               <TableCell>
-                <Typography variant="h4" sx={{ fontWeight: "bold" }}>
+                <Typography variant="h6" sx={{ fontWeight: "bold" }}>
                     Cliente
                 </Typography>
               </TableCell>
               <TableCell>
-                <Typography variant="h4" sx={{ fontWeight: "bold" }}>
+                <Typography variant="h6" sx={{ fontWeight: "bold" }}>
                     Tipo de Cliente
                 </Typography>
               </TableCell>
               <TableCell>
-                <Typography variant="h4" sx={{ fontWeight: "bold" }}>
+                <Typography variant="h6" sx={{ fontWeight: "bold" }}>
                     Acciones
                 </Typography>
               </TableCell>
