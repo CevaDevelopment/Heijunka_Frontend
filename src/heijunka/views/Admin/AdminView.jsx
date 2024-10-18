@@ -12,11 +12,15 @@ import useUsers from '../../api/useUsers';
 import useClients from '../../api/useClients';
 import Clients from './components/Clients';
 import Collaborators from './components/Colaborators';
+import { ModalEditClients } from '../../components/ModalEditClients';
+import { ModalEditUsers } from '../../components/ModalEditUsers';
+
 
 
 export const AdminView = () => {
   const [tabIndex, setTabIndex] = useState(0);
   const [isModalOpen, setModalOpen] = useState(false);
+  const [isEditModalOpen, setEditModalOpen] = useState(false);
   const [isClientModal, setIsClientModal] = useState(false);
   const [userToEdit, setUserToEdit] = useState(null);
   const [clientToEdit, setClientToEdit] = useState(null);  // Estado para editar clientes
@@ -49,6 +53,7 @@ export const AdminView = () => {
       await addUsers(newElement);  // Usamos el hook para agregar usuario
     }
     setModalOpen(false);
+    resetState();
   };
 
   const handleUpdateElement = async (updatedElement) => {
@@ -58,6 +63,12 @@ export const AdminView = () => {
       await editUsers(updatedElement.id, updatedElement);  // Usamos el hook para editar usuario
     }
     setModalOpen(false);
+    resetState();
+  };
+
+  const resetState = () => {
+    setUserToEdit(null);
+    setClientToEdit(null);
   };
 
   if (loadingUsers || loadingClients) return <div>Loading...</div>;
@@ -114,24 +125,43 @@ export const AdminView = () => {
           open={isModalOpen}
           handleClose={() => {
             setModalOpen(false);
-            setClientToEdit(null);
+            resetState();
           }}
           handleAddNewClient={handleAddNewElement}
-          handleEditClient={handleUpdateElement}
-          clientToEdit={clientToEdit}
         />
       ) : (
         <ModalUsers
           open={isModalOpen}
           handleClose={() => {
             setModalOpen(false);
-            setUserToEdit(null);
+            resetState();
           }}
           handleAddNewElement={handleAddNewElement}
+        />
+      )}
+       {/* Modal para editar usuarios o clientes */}
+      {isClientModal ? (
+        <ModalEditClients
+          open={isEditModalOpen}
+          handleClose={() => {
+            setEditModalOpen(false);
+            resetState();
+          }}
+          handleEditClient={handleUpdateElement}
+          clientToEdit={clientToEdit}
+        />
+      ) : (
+        <ModalEditUsers
+          open={isEditModalOpen}
+          handleClose={() => {
+            setEditModalOpen(false);
+            resetState();
+          }}
           handleEditUser={handleUpdateElement}
           userToEdit={userToEdit}
         />
       )}
+
     </Grid>
   );
 };
