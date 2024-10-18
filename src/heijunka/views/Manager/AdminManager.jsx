@@ -75,7 +75,7 @@ export const AdminManager = () => {
     if (timeDifference < TIME_LIMIT) {
       setTasks(JSON.parse(savedTasks));
 
-      // Cargar valores del formulario
+      // Carga valores del formulario
       const savedSite = localStorage.getItem("selectedSite");
       const savedCollaborators = localStorage.getItem("selectedCollaborators");
       const savedStartTime = localStorage.getItem("startTime");
@@ -86,7 +86,11 @@ export const AdminManager = () => {
       if (savedCollaborators) setSelectedCollaborators(JSON.parse(savedCollaborators));
       if (savedStartTime) setStartTime(new Date(savedStartTime));
       if (savedEndTime) setEndTime(new Date(savedEndTime));
-      if (savedGenerated) setGenerated(JSON.parse(savedGenerated)); 
+      if (savedGenerated) setGenerated(JSON.parse(savedGenerated));
+      if (savedGenerated === "true") {
+        setGenerated(true);
+        setFormVisible(false);  // Ocultar el formulario si Heijunka fue generado previamente
+      } 
 
       console.log("Formulario y tareas cargados desde localStorage");
     } else {
@@ -126,6 +130,8 @@ export const AdminManager = () => {
     localStorage.removeItem("tasks");
     localStorage.removeItem("tasksSavedTime");
     localStorage.removeItem("generated");
+    setFormVisible(true);  // Al resetear, mostrar el formulario de nuevo
+    setGenerated(false);    // No mostrar el Heijunka si se resetean las tareas
     console.log("Tareas reiniciadas");
   };
 
