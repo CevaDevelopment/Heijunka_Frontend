@@ -91,7 +91,7 @@ export const AdminManager = () => {
     }
     return [];
   };
-  
+
   const hours = calculateHours();
 
   const capitalizeFirstWord = (text) => {
@@ -205,17 +205,17 @@ export const AdminManager = () => {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
+        transition: "all 0.3s ease",
       }}
     >
       {/* Botón para desplegar/ocultar el formulario */}
-      {!formVisible && (
         <IconButton onClick={toggleFormVisibility}>
           <ExpandMore />
         </IconButton>
-      )}
 
       {/* Formulario que se esconde al generar Heijunka */}
-      <>
+      {!formVisible && (
+        <>
       {/* Sitios */}
       <FormControl fullWidth sx={{ mb: 2 }}>
         <Select
@@ -328,6 +328,8 @@ export const AdminManager = () => {
         </Button>
       </Box>
       </>
+
+      )}
 
       {generated && (
         <Box sx={{ marginTop: "180px", width: "100%" }}>
