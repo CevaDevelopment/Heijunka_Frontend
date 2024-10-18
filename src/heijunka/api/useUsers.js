@@ -37,6 +37,7 @@ const useUsers = () => {
         role: newUser.role,
         site_id: newUser.site_id,
         is_active: newUser.is_active,
+        Password: newUser.password
       };
       const response = await heijunkaApi.post("/users/", userData);
       setUsers((prevUsers) => [...prevUsers, response.data]);
