@@ -20,7 +20,7 @@ import {
   DialogContent,
   DialogTitle,
 } from "@mui/material";
-import { Assignment, ExpandLess, ExpandMore } from "@mui/icons-material";
+import { Assignment, ExpandMore } from "@mui/icons-material";
 import { useSites } from "../../api";
 
 import DatePicker from "react-datepicker";
@@ -52,7 +52,6 @@ export const AdminManager = () => {
   const [selectedCollaborator, setSelectedCollaborator] = useState("");
   const [quantity, setQuantity] = useState("");
   const [formVisible, setFormVisible] = useState(true); // Estado para la visibilidad del formulario
-  const [isFormExpanded, setIsFormExpanded] = useState(false);
 
   const intSite = () => {
     return { MCC1: 1, MCC2: 2, LOGIKA: 3 }[selectedSite] || null;
@@ -71,7 +70,6 @@ export const AdminManager = () => {
     if (selectedCollaborators.length > 0 && startTime && endTime) {
       setGenerated(true);
       setFormVisible(false);
-      setIsFormExpanded(true);
     } else {
       console.error("No hay colaboradores seleccionados.");
     }
@@ -79,7 +77,6 @@ export const AdminManager = () => {
 
   const toggleFormVisibility = () => {
     setFormVisible(!formVisible); // Cambia la visibilidad del formulario
-    setIsFormExpanded(!isFormExpanded); // Alterna el ícono entre expandir y contraer
   };
 
   const calculateHours = () => {
@@ -213,7 +210,7 @@ export const AdminManager = () => {
       {/* Botón para desplegar/ocultar el formulario */}
       {!formVisible && (
         <IconButton onClick={toggleFormVisibility}>
-          {isFormExpanded ? <ExpandMore /> : <ExpandLess />}
+          <ExpandMore />
         </IconButton>
       )}
 
