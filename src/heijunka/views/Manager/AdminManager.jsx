@@ -20,7 +20,7 @@ import {
   DialogContent,
   DialogTitle,
 } from "@mui/material";
-import { Assignment } from "@mui/icons-material";
+import { Assignment, ExpandLess, ExpandMore } from "@mui/icons-material";
 import { useSites } from "../../api";
 
 import DatePicker from "react-datepicker";
@@ -51,6 +51,8 @@ export const AdminManager = () => {
   const [selectedClientsSites, setSelectedClientsSites] = useState([]);
   const [selectedCollaborator, setSelectedCollaborator] = useState("");
   const [quantity, setQuantity] = useState("");
+  const [formVisible, setFormVisible] = useState(true); // Estado para la visibilidad del formulario
+  const [isFormExpanded, setIsFormExpanded] = useState(false);
 
   const intSite = () => {
     return { MCC1: 1, MCC2: 2, LOGIKA: 3 }[selectedSite] || null;
@@ -66,11 +68,18 @@ export const AdminManager = () => {
   }, [selectedSite, filterCollaboratorsBySite]);
 
   const handleGenerate = () => {
-    if (selectedCollaborators.length > 0) {
+    if (selectedCollaborators.length > 0 && startTime && endTime) {
       setGenerated(true);
+      setFormVisible(false);
+      setIsFormExpanded(true);
     } else {
       console.error("No hay colaboradores seleccionados.");
     }
+  };
+
+  const toggleFormVisibility = () => {
+    setFormVisible(!formVisible); // Cambia la visibilidad del formulario
+    setIsFormExpanded(!isFormExpanded); // Alterna el ícono entre expandir y contraer
   };
 
   const calculateHours = () => {
@@ -85,13 +94,14 @@ export const AdminManager = () => {
     }
     return [];
   };
+  
+  const hours = calculateHours();
 
   const capitalizeFirstWord = (text) => {
     if (!text) return text; // Verificar que el texto no esté vacío
     return text.charAt(0).toUpperCase() + text.slice(1); // Convertir la primera letra a mayúscula
   };
 
-  const hours = calculateHours();
 
   const handleOpenModal = (hour, collaborator) => {
     setSelectedHour(hour);
@@ -200,6 +210,15 @@ export const AdminManager = () => {
         alignItems: "center",
       }}
     >
+      {/* Botón para desplegar/ocultar el formulario */}
+      {!formVisible && (
+        <IconButton onClick={toggleFormVisibility}>
+          {isFormExpanded ? <ExpandMore /> : <ExpandLess />}
+        </IconButton>
+      )}
+
+      {/* Formulario que se esconde al generar Heijunka */}
+      <>
       {/* Sitios */}
       <FormControl fullWidth sx={{ mb: 2 }}>
         <Select
@@ -311,6 +330,7 @@ export const AdminManager = () => {
           Generar Heijunka
         </Button>
       </Box>
+      </>
 
       {generated && (
         <Box sx={{ marginTop: "180px", width: "100%" }}>

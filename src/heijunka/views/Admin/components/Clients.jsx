@@ -15,6 +15,7 @@ import {
   DialogActions,
   Button,
   TextField,
+  Typography,
 } from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -50,10 +51,26 @@ export const Clients = ({ clients, handleEditClient, handleDeleteClient }) => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Site</TableCell>
-              <TableCell>Cliente</TableCell>
-              <TableCell>Tipo de Cliente</TableCell>
-              <TableCell>Acciones</TableCell>
+              <TableCell>
+                <Typography variant="h4" sx={{ fontWeight: "bold" }}>
+                    Site
+                </Typography>
+              </TableCell>
+              <TableCell>
+                <Typography variant="h4" sx={{ fontWeight: "bold" }}>
+                    Cliente
+                </Typography>
+              </TableCell>
+              <TableCell>
+                <Typography variant="h4" sx={{ fontWeight: "bold" }}>
+                    Tipo de Cliente
+                </Typography>
+              </TableCell>
+              <TableCell>
+                <Typography variant="h4" sx={{ fontWeight: "bold" }}>
+                    Acciones
+                </Typography>
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -86,7 +103,9 @@ export const Clients = ({ clients, handleEditClient, handleDeleteClient }) => {
             fullWidth
             variant="outlined"
             value={editedClient.site}
-            onChange={(e) => setEditedClient({ ...editedClient, site: e.target.value })}
+            onChange={(e) =>
+              setEditedClient({ ...editedClient, site: e.target.value })
+            }
           />
           <TextField
             margin="dense"
@@ -94,7 +113,9 @@ export const Clients = ({ clients, handleEditClient, handleDeleteClient }) => {
             fullWidth
             variant="outlined"
             value={editedClient.name}
-            onChange={(e) => setEditedClient({ ...editedClient, name: e.target.value })}
+            onChange={(e) =>
+              setEditedClient({ ...editedClient, name: e.target.value })
+            }
           />
           <TextField
             margin="dense"
@@ -102,7 +123,9 @@ export const Clients = ({ clients, handleEditClient, handleDeleteClient }) => {
             fullWidth
             variant="outlined"
             value={editedClient.type}
-            onChange={(e) => setEditedClient({ ...editedClient, type: e.target.value })}
+            onChange={(e) =>
+              setEditedClient({ ...editedClient, type: e.target.value })
+            }
           />
         </DialogContent>
         <DialogActions>

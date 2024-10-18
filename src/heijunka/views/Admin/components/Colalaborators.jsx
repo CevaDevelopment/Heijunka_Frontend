@@ -52,25 +52,25 @@ const Collaborators = () => {
         <TableHead>
           <TableRow>
             <TableCell>
-              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Nombre</Typography>
+              <Typography variant="h4" sx={{ fontWeight: 'bold' }}>Nombre</Typography>
             </TableCell>
             <TableCell>
-              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Apellido</Typography>
+              <Typography variant="h4" sx={{ fontWeight: 'bold' }}>Apellido</Typography>
             </TableCell>
             <TableCell>
-              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Correo</Typography>
+              <Typography variant="h4" sx={{ fontWeight: 'bold' }}>Correo</Typography>
             </TableCell>
             <TableCell>
-              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Role</Typography>
+              <Typography variant="h4" sx={{ fontWeight: 'bold' }}>Role</Typography>
             </TableCell>
             <TableCell>
-              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Site</Typography>
+              <Typography variant="h4" sx={{ fontWeight: 'bold' }}>Site</Typography>
             </TableCell> 
             <TableCell>
-              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Estado</Typography>
+              <Typography variant="h4" sx={{ fontWeight: 'bold' }}>Estado</Typography>
             </TableCell>
             <TableCell>
-              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Acciones</Typography>
+              <Typography variant="h4" sx={{ fontWeight: 'bold' }}>Acciones</Typography>
             </TableCell>
           </TableRow>
         </TableHead>
