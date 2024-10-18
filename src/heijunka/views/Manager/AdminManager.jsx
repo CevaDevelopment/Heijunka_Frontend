@@ -23,11 +23,17 @@ import {
 import { Assignment, ExpandMore } from "@mui/icons-material";
 import { useSites } from "../../api";
 
+// Constante que define el tiempo límite (48 horas en milisegundos)
+const TIME_LIMIT = 48 * 60 * 60 * 1000;
+
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import dayjs from "dayjs";
 import useClients from "../../api/useClients";
 import useUsers from "../../api/useUsers";
+
+
+
 
 export const AdminManager = () => {
   const { sites, loading: loadingSites, error: errorSites } = useSites();
@@ -56,6 +62,25 @@ export const AdminManager = () => {
   const intSite = () => {
     return { MCC1: 1, MCC2: 2, LOGIKA: 3 }[selectedSite] || null;
   };
+
+  useEffect(() => {
+    const savedTasks = localStorage.getItem("tasks");
+    const savedTime = localStorage.getItem("tasksSavedTime");
+
+    if (savedTasks && savedTime) {
+      const currentTime = new Date().getTime();
+      const timeDifference = currentTime - savedTime;
+
+      // Si han pasado menos de 48 horas, cargamos las tareas
+      if (timeDifference < TIME_LIMIT) {
+        setTasks(JSON.parse(savedTasks));
+      } else {
+        // Si han pasado más de 48 horas, limpiamos el localStorage
+        localStorage.removeItem("tasks");
+        localStorage.removeItem("tasksSavedTime");
+      }
+    }
+  }, []);
 
   useEffect(() => {
     if (selectedSite) {
@@ -147,10 +172,16 @@ export const AdminManager = () => {
 
   const handleResetTasks = () => {
     setTasks({});
+    localStorage.removeItem("tasks");
+    localStorage.removeItem("tasksSavedTime");
+    console.log("Tareas reiniciadas");
   };
 
   const handleSaveTasks = () => {
-    console.log("Tareas guardadas", tasks);
+    const currentTime = new Date().getTime();
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+    localStorage.setItem("tasksSavedTime", currentTime);
+    console.log("Tareas guardadas en localStorage", tasks);
   };
 
   const handleChangeTaskStatus = (hour, collaboratorId, index) => {
