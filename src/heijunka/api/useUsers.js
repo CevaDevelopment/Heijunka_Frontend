@@ -30,16 +30,7 @@ const useUsers = () => {
   // Agregar usuario (sin incluir contraseña)
   const addUsers = async (newUser) => {
     try {
-      const userData = {
-        email: newUser.email,
-        first_name: newUser.firstName,
-        last_name: newUser.lastName,
-        role: newUser.role,
-        site_id: newUser.site_id,
-        is_active: newUser.is_active,
-        Password: newUser.password
-      };
-      const response = await heijunkaApi.post("/users/", userData);
+      const response = await heijunkaApi.post("/users/", newUser);
       setUsers((prevUsers) => [...prevUsers, response.data]);
       console.log("Usuario agregado", response.data);
     } catch (error) {
