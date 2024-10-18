@@ -22,7 +22,7 @@ export const ModalUsers = ({ open, handleClose, handleAddNewElement, handleEditU
   const [newLastName, setNewLastName] = useState('');
   const [newEmail, setNewEmail] = useState('');
   const [newStatus, setNewStatus] = useState('');
-  const [newPassword ] = useState('');
+  const [newPassword, setNewPassword ] = useState('');
 
   useEffect(() => {
     // Cuando el cliente o colaborador a editar cambia, llena los campos con los datos correctos
@@ -153,7 +153,7 @@ export const ModalUsers = ({ open, handleClose, handleAddNewElement, handleEditU
               fullWidth
               label="Contraseña"
               value={newPassword}
-              onChange={(e) => setNewEmail(e.target.value)}
+              onChange={(e) => setNewPassword(e.target.value)}
               sx={{ mb: 2 }}
             />
             <FormControl fullWidth sx={{ mb: 2 }}>
