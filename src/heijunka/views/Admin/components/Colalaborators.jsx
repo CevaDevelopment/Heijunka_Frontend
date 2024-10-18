@@ -8,6 +8,7 @@ import {
   TableRow,
   Paper,
   IconButton,
+  Typography,
 } from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -50,13 +51,27 @@ const Collaborators = () => {
       <Table>
         <TableHead>
           <TableRow>
-            <TableCell>Nombre</TableCell>
-            <TableCell>Apellido</TableCell>
-            <TableCell>Correo</TableCell>
-            <TableCell>Role</TableCell>
-            <TableCell>Site</TableCell> {/* Nueva columna para Site */}
-            <TableCell>Estado</TableCell>
-            <TableCell>Acciones</TableCell>
+            <TableCell>
+              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Nombre</Typography>
+            </TableCell>
+            <TableCell>
+              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Apellido</Typography>
+            </TableCell>
+            <TableCell>
+              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Correo</Typography>
+            </TableCell>
+            <TableCell>
+              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Role</Typography>
+            </TableCell>
+            <TableCell>
+              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Site</Typography>
+            </TableCell> 
+            <TableCell>
+              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Estado</Typography>
+            </TableCell>
+            <TableCell>
+              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Acciones</Typography>
+            </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -67,7 +82,14 @@ const Collaborators = () => {
               <TableCell>{user.email}</TableCell>
               <TableCell>{user.role}</TableCell>
               <TableCell>{user.site_name}</TableCell> 
-              <TableCell>{user.status}</TableCell>
+              <TableCell 
+                sx={{
+                  color: user.is_active ? 'green' : 'red', 
+                  fontWeight: 'bold'
+                }}
+              >
+                {user.is_active ? 'Activo' : 'Inactivo'}
+              </TableCell>
               <TableCell>
                 <IconButton onClick={() => handleEditUser(user.id)}>
                   <EditIcon />

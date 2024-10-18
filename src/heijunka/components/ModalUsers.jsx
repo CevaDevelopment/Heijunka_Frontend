@@ -39,7 +39,6 @@ export const ModalUsers = ({ open, handleClose, handleAddNewElement, handleEditU
       setNewEmail(userToEdit.email || '');
       setNewRole(userToEdit.role || '');
       setNewStatus(userToEdit.is_active ? 'active' : 'inactive'); // Asumiendo que `is_active` es un booleano
-      // No llenes la contraseña para no mostrarla
     } else {
       clearFields(); // Limpiar campos si no hay usuario para editar
     }

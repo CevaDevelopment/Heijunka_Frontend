@@ -84,8 +84,8 @@ export const AdminView = () => {
         value={tabIndex}
         onChange={(event, newValue) => setTabIndex(newValue)}
       >
-        <Tab label="Clientes" onClick={() => handleOpenModal(false)} />
-        <Tab label="Colaboradores" onClick={() => handleOpenModal(false)} />
+        <Tab label="Clientes" />
+        <Tab label="Colaboradores"/>
       </Tabs>
 
       {tabIndex === 0 && (
