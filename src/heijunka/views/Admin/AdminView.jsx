@@ -6,8 +6,8 @@ import {
   IconButton,
 } from "@mui/material";
 import { AddOutlined } from '@mui/icons-material';
-import { ModalUsers } from '../../components';  // Modal para usuarios
-import { ModalClients } from './components/ModalClients';  // Modal para clientes
+import { ModalClients, ModalUsers } from '../../components';  // Modal para usuarios
+
 import useUsers from '../../api/useUsers';
 import useClients from '../../api/useClients';
 import Clients from './components/Clients';
