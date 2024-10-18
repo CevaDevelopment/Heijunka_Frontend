@@ -10,7 +10,7 @@ const useUsers = () => {
     const fetchUsers = async () => {
       setLoading(true);
       try {
-        const response = await heijunkaApi.get("/users/");
+        const response = await heijunkaApi.get('/users/');
         setUsers(response.data);
       } catch (error) {
         setError(error);
@@ -52,10 +52,7 @@ const useUsers = () => {
   // Editar usuario (con PATCH)
   const editUsers = async (userId, updatedUser) => {
     try {
-      const response = await heijunkaApi.patch(
-        `/users/${userId}/`,
-        updatedUser
-      );
+      const response = await heijunkaApi.patch(`/users/${userId}/`,updatedUser);
       setUsers((prevUsers) =>
         prevUsers.map((user) => (user.id === userId ? response.data : user))
       );

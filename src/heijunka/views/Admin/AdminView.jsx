@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Grid,
   Tabs,
@@ -6,77 +6,63 @@ import {
   IconButton,
 } from "@mui/material";
 import { AddOutlined } from '@mui/icons-material';
-import axios from 'axios';
-import { ModalUsers } from '../../components';
-import Clients from './components/Clients';
+import { ModalUsers } from '../../components';  // Modal para usuarios
+import { ModalClients } from './components/ModalClients';  // Modal para clientes
+import useUsers from '../../api/useUsers';
 import useClients from '../../api/useClients';
-import Collaborators from './components/Colalaborators';
- // Asegúrate que el nombre sea correcto
+import Clients from './components/Clients';
+import Collaborators from './components/Colaborators';
+
 
 export const AdminView = () => {
   const [tabIndex, setTabIndex] = useState(0);
-  const [users, setUsers] = useState([]);
   const [isModalOpen, setModalOpen] = useState(false);
   const [isClientModal, setIsClientModal] = useState(false);
-  const roles = ['Admin', 'Operator', 'Manager'];
   const [userToEdit, setUserToEdit] = useState(null);
+  const [clientToEdit, setClientToEdit] = useState(null);  // Estado para editar clientes
 
-
-  const { clients, loading, error, deleteClient, addClient } = useClients();
-
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
-  const fetchUsers = async () => {
-    try {
-      const response = await axios.get('/api/users');
-      setUsers(response.data);
-    } catch (error) {
-      console.error("Error fetching users:", error);
-    }
-  };
-
-  const handleEditUser = (userId) => {
-    console.log("Editando colaborador con ID:", userId);
-    // Implementar lógica para editar un colaborador
-  };
-
-  const handleDeleteUser = async (userId) => {
-    try {
-      await axios.delete(`/api/users/${userId}`);
-      setUsers(users.filter(user => user.id !== userId));
-    } catch (error) {
-      console.error("Error deleting user:", error);
-    }
-  };
-
-  const handleAssignPermissions = (userId) => {
-    console.log("Asignando permisos al colaborador con ID:", userId);
-  };
+  // Hooks personalizados para usuarios y clientes
+  const { users, addUsers, editUsers, deleteUser, loading: loadingUsers, error: errorUsers } = useUsers();
+  const { clients, addClient, editClient, deleteClient, loading: loadingClients, error: errorClients } = useClients();
 
   const handleOpenModal = (isClient = false) => {
     setIsClientModal(isClient);
     setModalOpen(true);
   };
 
-  const handleAddNewElement = async (newElement) => {
-    try {
-      if (isClientModal) {
-        await addClient(newElement);
-      } else {
-        // Asegúrate de tener implementado el método para agregar colaborador
-        const response = await axios.post('/api/users', newElement); // Ajusta según tu backend
-        setUsers([...users, response.data]); // Agrega el nuevo colaborador a la lista
-      }
-      setModalOpen(false);
-    } catch (error) {
-      console.error("Error adding new element:", error);
-    }
+  const handleEditUser = (user) => {
+    setUserToEdit(user);
+    setIsClientModal(false);
+    setModalOpen(true);
   };
 
-  if (loading) return <div>Loading clients...</div>;
-  if (error) return <div>Error loading clients: {error.message}</div>;
+  const handleEditClient = (client) => {
+    setClientToEdit(client);
+    setIsClientModal(true);
+    setModalOpen(true);
+  };
+
+  const handleAddNewElement = async (newElement) => {
+    if (isClientModal) {
+      await addClient(newElement);  // Usamos el hook para agregar cliente
+    } else {
+      await addUsers(newElement);  // Usamos el hook para agregar usuario
+    }
+    setModalOpen(false);
+  };
+
+  const handleUpdateElement = async (updatedElement) => {
+    if (isClientModal) {
+      await editClient(updatedElement.id, updatedElement);  // Usamos el hook para editar cliente
+    } else {
+      await editUsers(updatedElement.id, updatedElement);  // Usamos el hook para editar usuario
+    }
+    setModalOpen(false);
+  };
+
+  if (loadingUsers || loadingClients) return <div>Loading...</div>;
+  if (errorUsers) return <div>Error al cargar usuarios: {errorUsers.message}</div>;
+  if (errorClients) return <div>Error al cargar clientes: {errorClients.message}</div>;
 
   return (
     <Grid container direction="column" spacing={3} sx={{ p: 3 }}>
@@ -85,7 +71,7 @@ export const AdminView = () => {
         onChange={(event, newValue) => setTabIndex(newValue)}
       >
         <Tab label="Clientes" />
-        <Tab label="Colaboradores"/>
+        <Tab label="Colaboradores" />
       </Tabs>
 
       {tabIndex === 0 && (
@@ -93,7 +79,7 @@ export const AdminView = () => {
           <Clients
             clients={clients}
             handleDeleteClient={deleteClient}
-            handleOpenModal={() => handleOpenModal(true)}
+            handleEditClient={handleEditClient}
           />
         </Grid>
       )}
@@ -103,9 +89,7 @@ export const AdminView = () => {
           <Collaborators
             users={users}
             handleEditUser={handleEditUser}
-            handleDeleteUser={handleDeleteUser}
-            handleAssignPermissions={handleAssignPermissions}
-            handleOpenModal={() => handleOpenModal(false)}
+            handleDeleteUser={deleteUser}
           />
         </Grid>
       )}
@@ -125,18 +109,29 @@ export const AdminView = () => {
         <AddOutlined sx={{ fontSize: 30 }} />
       </IconButton>
 
-      <ModalUsers
-        open={isModalOpen}
-        handleClose={() => {
-          setModalOpen(false);
-          setUserToEdit(null); // Limpiar el estado al cerrar
-        }}
-        handleAddNewElement={handleAddNewElement}
-        handleEditUser={handleEditUser} // Pasar la función de edición aquí
-        userToEdit={userToEdit} // Pasar el usuario a editar aquí
-        roles={roles}
-        isClientModal={isClientModal}
-      />
+      {isClientModal ? (
+        <ModalClients
+          open={isModalOpen}
+          handleClose={() => {
+            setModalOpen(false);
+            setClientToEdit(null);
+          }}
+          handleAddNewClient={handleAddNewElement}
+          handleEditClient={handleUpdateElement}
+          clientToEdit={clientToEdit}
+        />
+      ) : (
+        <ModalUsers
+          open={isModalOpen}
+          handleClose={() => {
+            setModalOpen(false);
+            setUserToEdit(null);
+          }}
+          handleAddNewElement={handleAddNewElement}
+          handleEditUser={handleUpdateElement}
+          userToEdit={userToEdit}
+        />
+      )}
     </Grid>
   );
 };
