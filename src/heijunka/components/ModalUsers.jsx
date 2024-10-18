@@ -22,6 +22,7 @@ export const ModalUsers = ({ open, handleClose, handleAddNewElement, handleEditU
   const [newLastName, setNewLastName] = useState('');
   const [newEmail, setNewEmail] = useState('');
   const [newStatus, setNewStatus] = useState('');
+  const [newPassword ] = useState('');
 
   useEffect(() => {
     // Cuando el cliente o colaborador a editar cambia, llena los campos con los datos correctos
@@ -60,6 +61,7 @@ export const ModalUsers = ({ open, handleClose, handleAddNewElement, handleEditU
         email: newEmail,
         role: newRole,
         is_active: newStatus,
+        password: newPassword
       };
 
       if (userToEdit) {
@@ -143,6 +145,14 @@ export const ModalUsers = ({ open, handleClose, handleAddNewElement, handleEditU
               fullWidth
               label="Correo"
               value={newEmail}
+              onChange={(e) => setNewEmail(e.target.value)}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+            type='Contraseña'
+              fullWidth
+              label="Contraseña"
+              value={newPassword}
               onChange={(e) => setNewEmail(e.target.value)}
               sx={{ mb: 2 }}
             />
