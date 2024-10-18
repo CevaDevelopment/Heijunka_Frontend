@@ -274,131 +274,146 @@ export const AdminManager = () => {
       }}
     >
       {/* Botón para desplegar/ocultar el formulario */}
-        <IconButton onClick={toggleFormVisibility}>
-          <ExpandMore />
-        </IconButton>
+      <IconButton onClick={toggleFormVisibility}>
+        <ExpandMore />
+      </IconButton>
 
       {/* Formulario que se esconde al generar Heijunka */}
       {formVisible && (
         <>
-      {/* Sitios */}
-      <FormControl fullWidth sx={{ mb: 2 }}>
-        <Select
-          value={selectedSite}
-          onChange={(e) => setSelectedSite(e.target.value)}
-          displayEmpty
-          inputProps={{ "aria-label": "Seleccionar Sitio" }}
-          sx={{
-            mb: 2,
-            borderRadius: 2,
-            backgroundColor: "#f5f5f5",
-            padding: "8px",
-          }}
-        >
-          <MenuItem value="" disabled>
-            Seleccionar Sitio
-          </MenuItem>
-          {sites.map((site) => (
-            <MenuItem key={site.id} value={site.name}>
-              {site.name}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+          {/* Sitios */}
+          <FormControl fullWidth sx={{ mb: 2 }}>
+            <Select
+              value={selectedSite}
+              onChange={(e) => setSelectedSite(e.target.value)}
+              displayEmpty
+              inputProps={{ "aria-label": "Seleccionar Sitio" }}
+              sx={{
+                mb: 2,
+                borderRadius: 2,
+                backgroundColor: "#f5f5f5",
+                padding: "8px",
+              }}
+            >
+              <MenuItem value="" disabled>
+                Seleccionar Sitio
+              </MenuItem>
+              {sites.map((site) => (
+                <MenuItem key={site.id} value={site.name}>
+                  {site.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
 
-      {/* Colaboradores */}
-      <FormControl fullWidth sx={{ mb: 2 }} disabled={!selectedSite}>
-        {loadingUsers ? (
-          <CircularProgress />
-        ) : (
-          <Select
-            multiple
-            value={selectedCollaborators}
-            onChange={(e) => setSelectedCollaborators(e.target.value)}
-            displayEmpty
-            inputProps={{ "aria-label": "Seleccionar Colaborador" }}
+          {/* Colaboradores */}
+          <FormControl fullWidth sx={{ mb: 2 }} disabled={!selectedSite}>
+            {loadingUsers ? (
+              <CircularProgress />
+            ) : (
+              <Select
+                multiple
+                value={selectedCollaborators}
+                onChange={(e) => setSelectedCollaborators(e.target.value)}
+                displayEmpty
+                inputProps={{ "aria-label": "Seleccionar Colaborador" }}
+                sx={{
+                  mb: 2,
+                  borderRadius: 2,
+                  backgroundColor: "#f5f5f5",
+                  padding: "8px",
+                }}
+              >
+                <MenuItem value="" disabled>
+                  Seleccionar Colaboradores
+                </MenuItem>
+                {collaborators.length > 0 ? (
+                  collaborators.map((collaborator) => (
+                    <MenuItem key={collaborator.id} value={collaborator.id}>
+                      {collaborator.first_name}
+                    </MenuItem>
+                  ))
+                ) : (
+                  <MenuItem disabled>No hay colaboradores disponibles</MenuItem>
+                )}
+              </Select>
+            )}
+          </FormControl>
+
+          {/* Heijunka */}
+          <Grid container spacing={2}>
+            <Grid item xs={6}>
+              <Box
+                sx={{
+                  backgroundColor: "#f5f5f5",
+                  borderRadius: 2,
+                  padding: "8px",
+                }}
+              >
+                <DatePicker
+                  selected={startTime}
+                  onChange={(date) => setStartTime(date)}
+                  showTimeSelect
+                  showTimeSelectOnly
+                  timeIntervals={60}
+                  timeCaption="Inicio"
+                  dateFormat="HH:mm"
+                  placeholderText="Hora de Inicio"
+                  customInput={<input readOnly style={inputStyle} />}
+                />
+              </Box>
+            </Grid>
+
+            <Grid item xs={6}>
+              <Box
+                sx={{
+                  backgroundColor: "#f5f5f5",
+                  borderRadius: 2,
+                  padding: "8px",
+                }}
+              >
+                <DatePicker
+                  selected={endTime}
+                  onChange={(date) => setEndTime(date)}
+                  showTimeSelect
+                  showTimeSelectOnly
+                  timeIntervals={60}
+                  timeCaption="Fin"
+                  dateFormat="HH:mm"
+                  placeholderText="Hora de Fin"
+                  customInput={<input readOnly style={inputStyle} />}
+                />
+              </Box>
+            </Grid>
+          </Grid>
+
+          <Box
             sx={{
-              mb: 2,
-              borderRadius: 2,
-              backgroundColor: "#f5f5f5",
-              padding: "8px",
+              display: "flex",
+              justifyContent: "center",
+              marginTop: "20px",
             }}
           >
-            <MenuItem value="" disabled>
-              Seleccionar Colaboradores
-            </MenuItem>
-            {collaborators.length > 0 ? (
-              collaborators.map((collaborator) => (
-                <MenuItem key={collaborator.id} value={collaborator.id}>
-                  {collaborator.first_name}
-                </MenuItem>
-              ))
-            ) : (
-              <MenuItem disabled>No hay colaboradores disponibles</MenuItem>
-            )}
-          </Select>
-        )}
-      </FormControl>
-
-      {/* Heijunka */}
-      <Grid container spacing={2}>
-        <Grid item xs={6}>
-          <Box
-            sx={{ backgroundColor: "#f5f5f5", borderRadius: 2, padding: "8px" }}
-          >
-            <DatePicker
-              selected={startTime}
-              onChange={(date) => setStartTime(date)}
-              showTimeSelect
-              showTimeSelectOnly
-              timeIntervals={60}
-              timeCaption="Inicio"
-              dateFormat="HH:mm"
-              placeholderText="Hora de Inicio"
-              customInput={<input readOnly style={inputStyle} />}
-            />
+            <Button
+              variant="contained"
+              onClick={handleGenerate}
+              disabled={
+                !startTime || !endTime || selectedCollaborators.length === 0
+              }
+            >
+              Generar Heijunka
+            </Button>
           </Box>
-        </Grid>
-
-        <Grid item xs={6}>
-          <Box
-            sx={{ backgroundColor: "#f5f5f5", borderRadius: 2, padding: "8px" }}
-          >
-            <DatePicker
-              selected={endTime}
-              onChange={(date) => setEndTime(date)}
-              showTimeSelect
-              showTimeSelectOnly
-              timeIntervals={60}
-              timeCaption="Fin"
-              dateFormat="HH:mm"
-              placeholderText="Hora de Fin"
-              customInput={<input readOnly style={inputStyle} />}
-            />
-          </Box>
-        </Grid>
-      </Grid>
-
-      <Box
-        sx={{ display: "flex", justifyContent: "center", marginTop: "20px" }}
-      >
-        <Button
-          variant="contained"
-          onClick={handleGenerate}
-          disabled={
-            !startTime || !endTime || selectedCollaborators.length === 0
-          }
-        >
-          Generar Heijunka
-        </Button>
-      </Box>
-      </>
-
+        </>
       )}
 
       {generated && (
-        <Box sx={{ marginTop: "180px", width: "100%" }}>
-          <Typography variant="h4" textAlign="center" sx={{ mb: 10 }}>
+        <Box sx={{ marginTop: "60px", width: "100%" }}>
+          <Typography
+            variant="h4"
+            textAlign="center"
+            sx={{ mb: 10, fontWeight: "bold" }}
+          >
             Tareas Asignadas
           </Typography>
           <Table
