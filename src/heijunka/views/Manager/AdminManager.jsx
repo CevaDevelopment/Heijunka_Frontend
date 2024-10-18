@@ -22,10 +22,6 @@ import {
 } from "@mui/material";
 import { Assignment, ExpandMore } from "@mui/icons-material";
 import { useSites } from "../../api";
-
-// Constante que define el tiempo límite (48 horas en milisegundos)
-const TIME_LIMIT = 48 * 60 * 60 * 1000;
-
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import dayjs from "dayjs";
@@ -33,6 +29,9 @@ import useClients from "../../api/useClients";
 import useUsers from "../../api/useUsers";
 
 
+
+// Constante que define el tiempo límite (48 horas en milisegundos)
+const TIME_LIMIT = 48 * 60 * 60 * 1000;
 
 
 export const AdminManager = () => {
@@ -64,23 +63,37 @@ export const AdminManager = () => {
   };
 
   useEffect(() => {
-    const savedTasks = localStorage.getItem("tasks");
-    const savedTime = localStorage.getItem("tasksSavedTime");
+  // Recuperar tareas desde localStorage
+  const savedTasks = localStorage.getItem("tasks");
+  const savedTime = localStorage.getItem("tasksSavedTime");
 
-    if (savedTasks && savedTime) {
-      const currentTime = new Date().getTime();
-      const timeDifference = currentTime - savedTime;
+  if (savedTasks && savedTime) {
+    const currentTime = new Date().getTime();
+    const timeDifference = currentTime - savedTime;
 
-      // Si han pasado menos de 48 horas, cargamos las tareas
-      if (timeDifference < TIME_LIMIT) {
-        setTasks(JSON.parse(savedTasks));
-      } else {
-        // Si han pasado más de 48 horas, limpiamos el localStorage
-        localStorage.removeItem("tasks");
-        localStorage.removeItem("tasksSavedTime");
-      }
+    // Si han pasado menos de 48 horas, cargamos las tareas
+    if (timeDifference < TIME_LIMIT) {
+      setTasks(JSON.parse(savedTasks));
+
+      // Cargar valores del formulario
+      const savedSite = localStorage.getItem("selectedSite");
+      const savedCollaborators = localStorage.getItem("selectedCollaborators");
+      const savedStartTime = localStorage.getItem("startTime");
+      const savedEndTime = localStorage.getItem("endTime");
+
+      if (savedSite) setSelectedSite(savedSite);
+      if (savedCollaborators) setSelectedCollaborators(JSON.parse(savedCollaborators));
+      if (savedStartTime) setStartTime(new Date(savedStartTime));
+      if (savedEndTime) setEndTime(new Date(savedEndTime));
+
+      console.log("Formulario y tareas cargados desde localStorage");
+    } else {
+      // Si han pasado más de 48 horas, limpiamos el localStorage
+      localStorage.removeItem("tasks");
+      localStorage.removeItem("tasksSavedTime");
     }
-  }, []);
+  }
+}, []);
 
   useEffect(() => {
     if (selectedSite) {
@@ -94,7 +107,7 @@ export const AdminManager = () => {
   const handleGenerate = () => {
     if (selectedCollaborators.length > 0 && startTime && endTime) {
       setGenerated(true);
-      setFormVisible(false);
+      setFormVisible(true);
     } else {
       console.error("No hay colaboradores seleccionados.");
     }
@@ -179,9 +192,16 @@ export const AdminManager = () => {
 
   const handleSaveTasks = () => {
     const currentTime = new Date().getTime();
+
+    // Guardar tareas en localStorage
     localStorage.setItem("tasks", JSON.stringify(tasks));
     localStorage.setItem("tasksSavedTime", currentTime);
-    console.log("Tareas guardadas en localStorage", tasks);
+    localStorage.setItem("selectedSite", selectedSite);
+    localStorage.setItem("selectedCollaborators", JSON.stringify(selectedCollaborators));
+    localStorage.setItem("startTime", startTime ? startTime.toISOString() : null);
+    localStorage.setItem("endTime", endTime ? endTime.toISOString() : null);
+
+    console.log("Tareas y valores del formulario guardados en localStorage");
   };
 
   const handleChangeTaskStatus = (hour, collaboratorId, index) => {
