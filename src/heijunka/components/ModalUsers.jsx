@@ -22,29 +22,27 @@ export const ModalUsers = ({ open, handleClose, handleAddNewElement, handleEditU
   const [newLastName, setNewLastName] = useState('');
   const [newEmail, setNewEmail] = useState('');
   const [newStatus, setNewStatus] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
 
   useEffect(() => {
-    // Cuando el usuario a editar cambia, llena los campos con los datos del usuario
+    // Cuando el cliente o colaborador a editar cambia, llena los campos con los datos correctos
     if (userToEdit) {
       setNewFirstName(userToEdit.first_name || '');
       setNewLastName(userToEdit.last_name || '');
       setNewEmail(userToEdit.email || '');
       setNewRole(userToEdit.role || '');
       setNewStatus(userToEdit.is_active ? 'active' : 'inactive'); // Asumiendo que `is_active` es un booleano
+
+      if (isClientModal) {
+        setNewSite(userToEdit.site_id || ''); // Asigna el site_id del cliente
+        setNewClient(userToEdit.name || ''); // Asigna el nombre del cliente
+        setNewClientType(userToEdit.type_id || ''); // Asigna el type_id del cliente
+      }
     } else {
-      clearFields(); // Limpiar campos si no hay usuario para editar
+      clearFields(); // Limpiar campos si no hay cliente o usuario para editar
     }
-  }, [userToEdit]);
+  }, [userToEdit, isClientModal]);
 
   const handleSubmit = () => {
-    
-    if (newPassword !== confirmPassword) {
-      alert("Las contraseñas no coinciden.");
-      return;
-    }
-
     if (isClientModal) {
       if (newSite && newClient && newClientType) {
         handleAddNewElement({
@@ -62,18 +60,12 @@ export const ModalUsers = ({ open, handleClose, handleAddNewElement, handleEditU
         email: newEmail,
         role: newRole,
         is_active: newStatus,
-        password: newPassword, 
       };
-
-      console.log("Datos del usuario a agregar/editar:", userData);
-
 
       if (userToEdit) {
         userData.id = userToEdit.id; // Añadimos el ID si es una edición
-        console.log("Editando usuario:", userData);
         handleEditUser(userData);
       } else {
-        console.log("Agregando nuevo colaborador:", userData);
         handleAddNewElement(userData); // Agregar nuevo colaborador
       }
     }
@@ -91,15 +83,12 @@ export const ModalUsers = ({ open, handleClose, handleAddNewElement, handleEditU
     setNewLastName('');
     setNewEmail('');
     setNewStatus('');
-    setNewPassword('');
-    setConfirmPassword('');
-    console.log("Campos limpiados");
   };
 
   return (
     <Dialog open={open} onClose={handleClose}>
       <DialogTitle>
-        {isClientModal ? "Agregar Cliente" : "Agregar Colaborador"}
+        {isClientModal ? "Agregar/Editar Cliente" : "Agregar/Editar Colaborador"}
       </DialogTitle>
       <DialogContent>
         {isClientModal ? (
@@ -184,7 +173,7 @@ export const ModalUsers = ({ open, handleClose, handleAddNewElement, handleEditU
       <DialogActions>
         <Button onClick={handleClose}>Cancelar</Button>
         <Button onClick={handleSubmit} variant="contained" color="primary">
-          Agregar
+          {userToEdit ? "Actualizar" : "Agregar"}
         </Button>
       </DialogActions>
     </Dialog>
@@ -198,11 +187,14 @@ ModalUsers.propTypes = {
   handleEditUser: PropTypes.func.isRequired,
   userToEdit: PropTypes.shape({
     id: PropTypes.number,
-    first_name: PropTypes.string, // Cambiado a first_name
-    last_name: PropTypes.string, // Cambiado a last_name
+    first_name: PropTypes.string,
+    name: PropTypes.string,
+    last_name: PropTypes.string,
     email: PropTypes.string,
     role: PropTypes.string,
-    is_active: PropTypes.bool, // Agregado is_active como booleano
+    is_active: PropTypes.bool,
+    site_id: PropTypes.number, // site_id se usa para editar un cliente
+    type_id: PropTypes.number, // type_id se usa para editar un cliente
   }),
   isClientModal: PropTypes.bool.isRequired,
 };
