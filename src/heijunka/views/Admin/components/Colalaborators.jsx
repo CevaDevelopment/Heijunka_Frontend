@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Table,
   TableBody,
@@ -12,18 +12,20 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SecurityIcon from '@mui/icons-material/Security';
-import { useUsers } from '../../../api/useUsers';
+
+import { ModalUsers } from '../../../components/ModalUsers';
+import useUsers from '../../../api/useUsers';
 
 const Collaborators = () => {
-  const { users, loading, error, deleteUser, editUsers } = useUsers();
+  const { users, loading, error, deleteUser, editUsers, addUser } = useUsers();
+    const [isModalOpen, setModalOpen] = useState(false);
+  const [userToEdit, setUserToEdit] = useState(null);
 
   // Handler para editar usuario
   const handleEditUser = async (id) => {
-    const newName = prompt("Introduce el nuevo nombre:");
-    if (newName) {
-      const userToUpdate = { id, firstName: newName };
-      await editUsers(userToUpdate);
-    }
+    const user = users.find(user => user.id === id);
+    setUserToEdit(user); // Guardar el usuario a editar
+    setModalOpen(true); // Abrir el modal
   };
 
   // Handler para eliminar usuario
@@ -32,6 +34,7 @@ const Collaborators = () => {
       await deleteUser(id);
     }
   };
+
 
   // Handler para asignar permisos
   const handleAssignPermissions = (id) => {
@@ -63,7 +66,7 @@ const Collaborators = () => {
               <TableCell>{user.last_name}</TableCell>
               <TableCell>{user.email}</TableCell>
               <TableCell>{user.role}</TableCell>
-              <TableCell>{user.site_name}</TableCell> {/* Mostrar el nombre del sitio */}
+              <TableCell>{user.site_name}</TableCell> 
               <TableCell>{user.status}</TableCell>
               <TableCell>
                 <IconButton onClick={() => handleEditUser(user.id)}>
@@ -80,6 +83,17 @@ const Collaborators = () => {
           ))}
         </TableBody>
       </Table>
+      <ModalUsers
+        open={isModalOpen}
+        handleClose={() => {
+          setModalOpen(false);
+          setUserToEdit(null); // Limpiar el estado al cerrar
+        }}
+        handleAddNewElement={addUser} // Aquí deberías tener tu función para agregar
+        handleEditUser={editUsers} // Pasar la función de editar
+        userToEdit={userToEdit} // Pasar el usuario a editar
+        isClientModal={false}
+      />
     </TableContainer>
   );
 };

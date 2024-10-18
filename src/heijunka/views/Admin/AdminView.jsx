@@ -19,6 +19,8 @@ export const AdminView = () => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [isClientModal, setIsClientModal] = useState(false);
   const roles = ['Admin', 'Operator', 'Manager'];
+  const [userToEdit, setUserToEdit] = useState(null);
+
 
   const { clients, loading, error, deleteClient, addClient } = useClients();
 
@@ -78,7 +80,10 @@ export const AdminView = () => {
 
   return (
     <Grid container direction="column" spacing={3} sx={{ p: 3 }}>
-      <Tabs value={tabIndex} onChange={(event, newValue) => setTabIndex(newValue)}>
+      <Tabs
+        value={tabIndex}
+        onChange={(event, newValue) => setTabIndex(newValue)}
+      >
         <Tab label="Clientes" onClick={() => handleOpenModal(false)} />
         <Tab label="Colaboradores" onClick={() => handleOpenModal(false)} />
       </Tabs>
@@ -108,10 +113,10 @@ export const AdminView = () => {
       <IconButton
         size="large"
         sx={{
-          color: 'white',
-          backgroundColor: 'error.main',
-          ':hover': { backgroundColor: 'error.main', opacity: 0.9 },
-          position: 'fixed',
+          color: "white",
+          backgroundColor: "error.main",
+          ":hover": { backgroundColor: "error.main", opacity: 0.9 },
+          position: "fixed",
           right: 50,
           bottom: 50,
         }}
@@ -122,8 +127,13 @@ export const AdminView = () => {
 
       <ModalUsers
         open={isModalOpen}
-        handleClose={() => setModalOpen(false)}
+        handleClose={() => {
+          setModalOpen(false);
+          setUserToEdit(null); // Limpiar el estado al cerrar
+        }}
         handleAddNewElement={handleAddNewElement}
+        handleEditUser={handleEditUser} // Pasar la función de edición aquí
+        userToEdit={userToEdit} // Pasar el usuario a editar aquí
         roles={roles}
         isClientModal={isClientModal}
       />

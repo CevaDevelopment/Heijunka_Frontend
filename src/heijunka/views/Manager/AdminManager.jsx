@@ -22,11 +22,12 @@ import {
 } from "@mui/material";
 import { Assignment } from "@mui/icons-material";
 import { useSites } from "../../api";
-import { useUsers } from "../../api/useUsers";
+
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import dayjs from "dayjs";
 import useClients from "../../api/useClients";
+import useUsers from "../../api/useUsers";
 
 export const AdminManager = () => {
   const { sites, loading: loadingSites, error: errorSites } = useSites();
