@@ -10,12 +10,8 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  TextField,
-  IconButton,
-  InputAdornment,
+  TextField,  
 } from "@mui/material";
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 export const ModalUsers = ({ open, handleClose, handleAddNewElement, handleEditUser, userToEdit, isClientModal }) => {
   const [newRole, setNewRole] = useState('');
@@ -28,8 +24,6 @@ export const ModalUsers = ({ open, handleClose, handleAddNewElement, handleEditU
   const [newStatus, setNewStatus] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
     // Cuando el usuario a editar cambia, llena los campos con los datos del usuario
@@ -184,46 +178,6 @@ export const ModalUsers = ({ open, handleClose, handleAddNewElement, handleEditU
                 <MenuItem value="manager">Manager</MenuItem>
               </Select>
             </FormControl>
-            <TextField
-              fullWidth
-              label="Contraseña"
-              type={showPassword ? 'text' : 'password'}
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              sx={{ mb: 2 }}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={() => setShowPassword(!showPassword)}
-                      edge="end"
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
-            <TextField
-              fullWidth
-              label="Confirmar Contraseña"
-              type={showConfirmPassword ? 'text' : 'password'}
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              sx={{ mb: 2 }}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      edge="end"
-                    >
-                      {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
           </>
         )}
       </DialogContent>

@@ -16,6 +16,10 @@ import {
   Button,
   TextField,
   Typography,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
 } from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -28,9 +32,9 @@ export const Clients = ({ clients, handleEditClient, handleDeleteClient }) => {
   const handleClickOpen = (client) => {
     setSelectedClient(client);
     setEditedClient({
-        site: client.site_name,
+        site: client.site_id,
         name: client.name,
-        type: client.type_name 
+        type: client.type_id 
       });
     setOpenDialog(true);
   };
@@ -97,16 +101,19 @@ export const Clients = ({ clients, handleEditClient, handleDeleteClient }) => {
       <Dialog open={openDialog} onClose={handleClose}>
         <DialogTitle>Editar Cliente</DialogTitle>
         <DialogContent>
-          <TextField
-            margin="dense"
-            label="Site"
-            fullWidth
-            variant="outlined"
-            value={editedClient.site}
-            onChange={(e) =>
-              setEditedClient({ ...editedClient, site: e.target.value })
-            }
-          />
+          <FormControl fullWidth sx={{ mb: 2 }}>
+            <InputLabel>Site</InputLabel>
+            <Select
+              value={editedClient.site_id}
+              onChange={(e) => setEditedClient({ ...editedClient, site_id: e.target.value })}
+            >
+              <MenuItem value={1}>MCC GREEN 1</MenuItem>
+              <MenuItem value={2}>MCC GREEN 2</MenuItem>
+              <MenuItem value={3}>LOGIKA</MenuItem>
+            </Select>
+          </FormControl>
+
+            {/* Campo para nombre del cliente */}
           <TextField
             margin="dense"
             label="Cliente"
@@ -117,16 +124,19 @@ export const Clients = ({ clients, handleEditClient, handleDeleteClient }) => {
               setEditedClient({ ...editedClient, name: e.target.value })
             }
           />
-          <TextField
-            margin="dense"
-            label="Tipo de Cliente"
-            fullWidth
-            variant="outlined"
-            value={editedClient.type}
-            onChange={(e) =>
-              setEditedClient({ ...editedClient, type: e.target.value })
-            }
-          />
+
+          {/* Select para tipo de cliente */}
+          <FormControl fullWidth sx={{ mb: 2 }}>
+            <InputLabel>Tipo de Cliente</InputLabel>
+            <Select
+              value={editedClient.type_id}
+              onChange={(e) => setEditedClient({ ...editedClient, type_id: e.target.value })}
+            >
+              <MenuItem value={1}>Mono Cliente</MenuItem>
+              <MenuItem value={2}>Multi Cliente</MenuItem>
+            </Select>
+          </FormControl>
+          
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose} color="primary">
