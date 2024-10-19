@@ -6,12 +6,13 @@ import {
   IconButton,
 } from "@mui/material";
 import { AddOutlined } from '@mui/icons-material';
-import { ModalClients, ModalUsers, ModalEditClients, ModalEditUsers } from '../../components';
+
 
 import useUsers from '../../api/useUsers';
 import useClients from '../../api/useClients';
 import Clients from './components/Clients';
 import Collaborators from './components/Colaborators';
+import { ModalClients, ModalEditClients, ModalEditUsers, ModalUsers } from '../../components';
 
 export const AdminView = () => {
   const [tabIndex, setTabIndex] = useState(0);
