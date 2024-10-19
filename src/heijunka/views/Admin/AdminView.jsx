@@ -6,16 +6,12 @@ import {
   IconButton,
 } from "@mui/material";
 import { AddOutlined } from '@mui/icons-material';
-import { ModalClients, ModalUsers } from '../../components';  // Modal para usuarios
+import { ModalClients, ModalUsers, ModalEditClients, ModalEditUsers } from '../../components';
 
 import useUsers from '../../api/useUsers';
 import useClients from '../../api/useClients';
 import Clients from './components/Clients';
 import Collaborators from './components/Colaborators';
-import { ModalEditClients } from '../../components/ModalEditClients';
-import { ModalEditUsers } from '../../components/ModalEditUsers';
-
-
 
 export const AdminView = () => {
   const [tabIndex, setTabIndex] = useState(0);
@@ -23,9 +19,8 @@ export const AdminView = () => {
   const [isEditModalOpen, setEditModalOpen] = useState(false);
   const [isClientModal, setIsClientModal] = useState(false);
   const [userToEdit, setUserToEdit] = useState(null);
-  const [clientToEdit, setClientToEdit] = useState(null);  // Estado para editar clientes
+  const [clientToEdit, setClientToEdit] = useState(null);
 
-  // Hooks personalizados para usuarios y clientes
   const { users, addUsers, editUsers, deleteUser, loading: loadingUsers, error: errorUsers } = useUsers();
   const { clients, addClient, editClient, deleteClient, loading: loadingClients, error: errorClients } = useClients();
 
@@ -37,20 +32,20 @@ export const AdminView = () => {
   const handleEditUser = (user) => {
     setUserToEdit(user);
     setIsClientModal(false);
-    setModalOpen(true);
+    setEditModalOpen(true);
   };
 
   const handleEditClient = (client) => {
     setClientToEdit(client);
     setIsClientModal(true);
-    setModalOpen(true);
+    setEditModalOpen(true);
   };
 
   const handleAddNewElement = async (newElement) => {
     if (isClientModal) {
-      await addClient(newElement);  // Usamos el hook para agregar cliente
+      await addClient(newElement);
     } else {
-      await addUsers(newElement);  // Usamos el hook para agregar usuario
+      await addUsers(newElement);
     }
     setModalOpen(false);
     resetState();
@@ -58,11 +53,11 @@ export const AdminView = () => {
 
   const handleUpdateElement = async (updatedElement) => {
     if (isClientModal) {
-      await editClient(updatedElement.id, updatedElement);  // Usamos el hook para editar cliente
+      await editClient(updatedElement.id, updatedElement);
     } else {
-      await editUsers(updatedElement.id, updatedElement);  // Usamos el hook para editar usuario
+      await editUsers(updatedElement.id, updatedElement);
     }
-    setModalOpen(false);
+    setEditModalOpen(false);
     resetState();
   };
 
@@ -77,10 +72,7 @@ export const AdminView = () => {
 
   return (
     <Grid container direction="column" spacing={3} sx={{ p: 3 }}>
-      <Tabs
-        value={tabIndex}
-        onChange={(event, newValue) => setTabIndex(newValue)}
-      >
+      <Tabs value={tabIndex} onChange={(event, newValue) => setTabIndex(newValue)}>
         <Tab label="Clientes" />
         <Tab label="Colaboradores" />
       </Tabs>
@@ -139,7 +131,7 @@ export const AdminView = () => {
           handleAddNewElement={handleAddNewElement}
         />
       )}
-       {/* Modal para editar usuarios o clientes */}
+
       {isClientModal ? (
         <ModalEditClients
           open={isEditModalOpen}
@@ -161,7 +153,6 @@ export const AdminView = () => {
           userToEdit={userToEdit}
         />
       )}
-
     </Grid>
   );
 };

@@ -33,9 +33,9 @@ export const ModalEditUsers = ({ open, handleClose, handleEditUser, userToEdit }
   const handleSubmit = () => {
     const updatedUser = {
       id: userToEdit.id,
+      email: newEmail,
       first_name: newFirstName,
       last_name: newLastName,
-      email: newEmail,
       role: newRole,
       is_active: newStatus,
     };
