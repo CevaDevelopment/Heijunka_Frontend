@@ -21,13 +21,15 @@ import {
   DialogTitle,
   Menu,
 } from "@mui/material";
-import { Assignment, ExpandMore, MoreVert } from "@mui/icons-material";
+import { Assignment, ExpandMore, MoreVert, SaveAlt } from "@mui/icons-material";
 import { useSites } from "../../api";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import dayjs from "dayjs";
 import useClients from "../../api/useClients";
 import useUsers from "../../api/useUsers";
+import Swal from "sweetalert2";
+import * as XLSX from "xlsx";
 
 // Constante que define el tiempo límite (48 horas en milisegundos)
 const TIME_LIMIT = 48 * 60 * 60 * 1000;
@@ -129,12 +131,24 @@ export const AdminManager = () => {
   };
 
   const handleResetTasks = () => {
-    setTasks({});
-    localStorage.removeItem("tasks");
-    localStorage.removeItem("tasksSavedTime");
-    localStorage.removeItem("generated");
-    setFormVisible(true);
-    setGenerated(false);
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: "Esto eliminará todas las tareas generadas.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, reiniciar',
+      cancelButtonText: 'Cancelar',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setTasks({});
+        localStorage.removeItem("tasks");
+        localStorage.removeItem("tasksSavedTime");
+        localStorage.removeItem("generated");
+        setFormVisible(true);
+        setGenerated(false);
+        Swal.fire('Reiniciado', 'Las tareas han sido reiniciadas.', 'success');
+      }
+    });
   };
 
   const calculateHours = () => {
@@ -221,14 +235,58 @@ export const AdminManager = () => {
   };
 
   const handleSaveTasks = () => {
-    const currentTime = new Date().getTime();
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-    localStorage.setItem("tasksSavedTime", currentTime);
-    localStorage.setItem("selectedSite", selectedSite);
-    localStorage.setItem("selectedCollaborators", JSON.stringify(selectedCollaborators));
-    localStorage.setItem("startTime", startTime ? startTime.toISOString() : null);
-    localStorage.setItem("endTime", endTime ? endTime.toISOString() : null);
-    localStorage.setItem("generated", JSON.stringify(generated));
+    Swal.fire({
+      title: '¿Guardar cambios?',
+      text: "Esto guardará las tareas en progreso.",
+      icon: 'info',
+      showCancelButton: true,
+      confirmButtonText: 'Guardar',
+      cancelButtonText: 'Cancelar',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const currentTime = new Date().getTime();
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+        localStorage.setItem("tasksSavedTime", currentTime);
+        localStorage.setItem("selectedSite", selectedSite);
+        localStorage.setItem("selectedCollaborators", JSON.stringify(selectedCollaborators));
+        localStorage.setItem("startTime", startTime ? startTime.toISOString() : null);
+        localStorage.setItem("endTime", endTime ? endTime.toISOString() : null);
+        localStorage.setItem("generated", JSON.stringify(generated));
+        Swal.fire('Guardado', 'Las tareas han sido guardadas.', 'success');
+      }
+    });
+  };
+
+  const handleDownloadReport = () => {
+    Swal.fire({
+      title: '¿Descargar informe?',
+      text: "Esto generará un archivo Excel con las tareas por colaborador.",
+      icon: 'info',
+      showCancelButton: true,
+      confirmButtonText: 'Descargar',
+      cancelButtonText: 'Cancelar',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const worksheet = XLSX.utils.json_to_sheet(
+          Object.keys(tasks).map((hour) => {
+            return Object.keys(tasks[hour]).map((collaborator) => ({
+              hour,
+              collaborator,
+              tasks: tasks[hour][collaborator].map(
+                (task) =>
+                  `Tarea: ${task.description}, Cliente: ${task.clients.join(
+                    ", "
+                  )}, Cantidad: ${task.quantity}, Estado: ${task.status}`
+              ),
+            }));
+          })
+        );
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Heijunka Report");
+        XLSX.writeFile(workbook, "heijunka_report.xlsx");
+        Swal.fire('Descargado', 'El informe se ha descargado con éxito.', 'success');
+      }
+    });
   };
 
   const handleChangeTaskStatus = (hour, collaboratorId, index) => {
@@ -625,20 +683,6 @@ export const AdminManager = () => {
                                 </Menu>
                               </>
                             )}
-
-                            <IconButton
-                              onClick={() =>
-                                handleOpenModal(hour, collaboratorId)
-                              }
-                              sx={{
-                                color: "primary.main",
-                                position: "absolute",
-                                bottom: "10px",
-                                right: "10px",
-                              }}
-                            >
-                              <Assignment />
-                            </IconButton>
                           </Box>
                         ))}
 
@@ -688,6 +732,14 @@ export const AdminManager = () => {
               sx={{ ml: 2 }}
             >
               Guardar Tareas
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleDownloadReport}
+              sx={{ ml: 2 }}
+            >
+              <SaveAlt /> Descargar Informe
             </Button>
           </Box>
         </Box>

@@ -18,7 +18,6 @@ export const LoginPage = () => {
 
     const loginSubmit = (event) => {
         event.preventDefault();
-        // console.log({ loginEmail, loginPassword });
         startLogin({ email: loginEmail, password: loginPassword });
     }
 
