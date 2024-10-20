@@ -59,6 +59,7 @@ export const AdminManager = () => {
   const [currentTime, setCurrentTime] = useState(dayjs());
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedTask, setSelectedTask] = useState(null);
+  const [editingTask, setEditingTask] = useState(null);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -156,14 +157,23 @@ export const AdminManager = () => {
     return text.charAt(0).toUpperCase() + text.slice(1);
   };
 
-  const handleOpenModal = (hour, collaborator) => {
+  const handleOpenModal = (hour, collaborator, taskToEdit = null) => {
     setSelectedHour(hour);
     setSelectedCollaborator(collaborator);
+    setEditingTask(taskToEdit);
+
+    if (taskToEdit) {
+      setTaskDescription(taskToEdit.description);
+      setSelectedClientsSites(taskToEdit.clients);
+      setQuantity(taskToEdit.quantity);
+    } else {
+      setTaskDescription("");
+      setSelectedClientsSites([]);
+      setQuantity("");
+    }
+
     setOpenModal(true);
     handleClientsSites();
-    setSelectedClientsSites([]);
-    setTaskDescription("");
-    setQuantity("");
   };
 
   const handleCloseModal = () => {
@@ -171,9 +181,10 @@ export const AdminManager = () => {
     setTaskDescription("");
     setSelectedClientsSites([]);
     setQuantity("");
+    setEditingTask(null);
   };
 
-  const handleAddTask = () => {
+  const handleAddOrEditTask = () => {
     if (selectedHour && taskDescription && selectedClientsSites.length > 0) {
       const newTask = {
         description: taskDescription,
@@ -182,20 +193,30 @@ export const AdminManager = () => {
         status: "pending",
       };
 
-      setTasks((prevTasks) => ({
-        ...prevTasks,
-        [selectedHour]: {
-          ...prevTasks[selectedHour],
-          [selectedCollaborator]: [
-            ...(prevTasks[selectedHour]?.[selectedCollaborator] || []),
-            newTask,
-          ],
-        },
-      }));
+      setTasks((prevTasks) => {
+        const updatedTasks = { ...prevTasks };
+
+        if (editingTask) {
+          const taskIndex = updatedTasks[selectedHour][selectedCollaborator].findIndex(
+            (task) => task === editingTask
+          );
+          updatedTasks[selectedHour][selectedCollaborator][taskIndex] = newTask;
+        } else {
+          updatedTasks[selectedHour] = {
+            ...updatedTasks[selectedHour],
+            [selectedCollaborator]: [
+              ...(updatedTasks[selectedHour]?.[selectedCollaborator] || []),
+              newTask,
+            ],
+          };
+        }
+
+        return updatedTasks;
+      });
 
       handleCloseModal();
     } else {
-      console.error("No hay hora seleccionada o descripción vacía para agregar la tarea.");
+      console.error("Faltan datos para agregar o editar la tarea.");
     }
   };
 
@@ -236,9 +257,9 @@ export const AdminManager = () => {
     return "gray";
   };
 
-  const handleOpenMenu = (event, hour, collaboratorId, index) => {
+  const handleOpenMenu = (event, task) => {
     setAnchorEl(event.currentTarget);
-    setSelectedTask(tasks[hour][collaboratorId][index]);
+    setSelectedTask(task);
   };
 
   const handleCloseMenu = () => {
@@ -246,8 +267,8 @@ export const AdminManager = () => {
     setSelectedTask(null);
   };
 
-  const handleEditTask = (hour, collaboratorId, index) => {
-    console.log("Editando tarea", hour, collaboratorId, index);
+  const handleEditTask = (hour, collaboratorId, task) => {
+    handleOpenModal(hour, collaboratorId, task);
     handleCloseMenu();
   };
 
@@ -489,11 +510,11 @@ export const AdminManager = () => {
                         key={hour}
                         align="left"
                         sx={{
-                          padding: "16px",
+                          padding: "20px", // Ajustar padding para hacerlo más espacioso
                           borderRadius: "12px",
                           backgroundColor: "#f9f9f9",
                           position: "relative",
-                          maxWidth: "140px",
+                          maxWidth: "200px", // Ajustar el ancho máximo para hacerlo más grande
                         }}
                       >
                         {tasks[hour]?.[collaboratorId]?.map((task, index) => (
@@ -560,15 +581,13 @@ export const AdminManager = () => {
                                   onClick={(event) =>
                                     handleOpenMenu(
                                       event,
-                                      hour,
-                                      collaboratorId,
-                                      index
+                                      task
                                     )
                                   }
                                   sx={{
                                     position: "absolute",
                                     top: "10px",
-                                    left: "10px",
+                                    right: "40px", // Ajustar para estar a la derecha
                                   }}
                                 >
                                   <MoreVert />
@@ -586,7 +605,7 @@ export const AdminManager = () => {
                                       handleEditTask(
                                         hour,
                                         collaboratorId,
-                                        index
+                                        task
                                       )
                                     }
                                   >
@@ -675,7 +694,7 @@ export const AdminManager = () => {
       )}
 
       <Dialog open={openModal} onClose={handleCloseModal}>
-        <DialogTitle>Agregar Tarea</DialogTitle>
+        <DialogTitle>{editingTask ? "Editar Tarea" : "Agregar Tarea"}</DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
@@ -722,7 +741,9 @@ export const AdminManager = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseModal}>Cancelar</Button>
-          <Button onClick={handleAddTask}>Agregar</Button>
+          <Button onClick={handleAddOrEditTask}>
+            {editingTask ? "Editar" : "Agregar"}
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>
