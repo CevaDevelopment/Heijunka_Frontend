@@ -57,10 +57,14 @@ export const AdminManager = () => {
   const [selectedCollaborator, setSelectedCollaborator] = useState("");
   const [quantity, setQuantity] = useState("");
   const [formVisible, setFormVisible] = useState(true); // Estado para la visibilidad del formulario
-
-  const intSite = () => {
-    return { MCC1: 1, MCC2: 2, LOGIKA: 3 }[selectedSite] || null;
-  };
+  const [currentTime, setCurrentTime] = useState(dayjs());
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(dayjs());
+    }, 1000); // Actualización cada segundo
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
   // Recuperar tareas desde localStorage
@@ -101,6 +105,10 @@ export const AdminManager = () => {
     }
   }
 }, []);
+
+const intSite = () => {
+  return { MCC1: 1, MCC2: 2, LOGIKA: 3 }[selectedSite] || null;
+};
 
   useEffect(() => {
     if (selectedSite) {
@@ -151,8 +159,8 @@ export const AdminManager = () => {
   const hours = calculateHours();
 
   const capitalizeFirstWord = (text) => {
-    if (!text) return text; // Verificar que el texto no esté vacío
-    return text.charAt(0).toUpperCase() + text.slice(1); // Convertir la primera letra a mayúscula
+    if (!text) return text; 
+    return text.charAt(0).toUpperCase() + text.slice(1); 
   };
 
 
@@ -222,9 +230,10 @@ export const AdminManager = () => {
     setTasks((prevTasks) => {
       const updatedTasks = { ...prevTasks };
       const task = updatedTasks[hour][collaboratorId][index];
+      const currentHour = currentTime.hour();
 
-      // Cambia el estado cíclicamente
-      if (task.status === "pending") {
+      // Actualización del estado según la hora actual
+      if (task.status === "pending" && currentHour >= hour) {
         task.status = "in-progress";
       } else if (task.status === "in-progress") {
         task.status = "completed";
@@ -234,6 +243,14 @@ export const AdminManager = () => {
 
       return updatedTasks;
     });
+  };
+
+  const getTaskButtonColor = (task, hour) => {
+    const currentHour = currentTime.hour();
+    if (task.status === "completed") return "green";
+    if (task.status === "in-progress") return "orange";
+    if (task.status === "pending" && currentHour > hour) return "red"; // Atrasado
+    return "gray"; // No ha comenzado
   };
 
   if (loadingSites) {
@@ -520,12 +537,7 @@ export const AdminManager = () => {
                             <Button
                               variant="contained"
                               sx={{
-                                backgroundColor:
-                                  task.status === "pending"
-                                    ? "gray"
-                                    : task.status === "in-progress"
-                                      ? "orange"
-                                      : "green",
+                                backgroundColor: getTaskButtonColor(task, hour),
                                 color: "white",
                                 minWidth: "30px",
                                 height: "30px",
