@@ -13,6 +13,18 @@ import {
   TextField,
 } from "@mui/material";
 
+// Mapeo de site_name a site_id y type_name a type_id
+const siteMapping = {
+  'MCC GREEN 1': 1,
+  'MCC GREEN 2': 2,
+  'LOGIKA': 3,
+};
+
+const typeMapping = {
+  'mono': 1,
+  'multi': 2,
+};
+
 export const ModalEditClients = ({ open, handleClose, handleEditClient, clientToEdit }) => {
   const [newSite, setNewSite] = useState('');
   const [newClient, setNewClient] = useState('');
@@ -20,18 +32,20 @@ export const ModalEditClients = ({ open, handleClose, handleEditClient, clientTo
 
   useEffect(() => {
     if (clientToEdit) {
-      setNewSite(clientToEdit.site_id || '');
+      // Mapeamos el nombre del sitio a su ID correspondiente
+      setNewSite(siteMapping[clientToEdit.site_name] || '');
       setNewClient(clientToEdit.name || '');
-      setNewClientType(clientToEdit.type_id || '');
+      // Mapeamos el tipo de cliente a su ID correspondiente
+      setNewClientType(typeMapping[clientToEdit.type_name] || '');
     }
   }, [clientToEdit]);
 
   const handleSubmit = () => {
     const updatedClient = {
       id: clientToEdit.id,
-      site_id: newSite,
+      site_id: newSite,  // Ya estamos manejando el site_id directamente
       name: newClient,
-      type_id: newClientType,
+      type_id: newClientType,  // Ya estamos manejando el type_id directamente
     };
 
     handleEditClient(updatedClient);
@@ -88,7 +102,7 @@ ModalEditClients.propTypes = {
   clientToEdit: PropTypes.shape({
     id: PropTypes.number.isRequired,
     name: PropTypes.string.isRequired,
-    site_id: PropTypes.number.isRequired,
-    type_id: PropTypes.number.isRequired,
+    site_name: PropTypes.string.isRequired,  // El site_name viene en la respuesta
+    type_name: PropTypes.string.isRequired,  // El type_name viene en la respuesta
   }),
 };
