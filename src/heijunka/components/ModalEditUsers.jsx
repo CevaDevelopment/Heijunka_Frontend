@@ -13,20 +13,32 @@ import {
   TextField,
 } from "@mui/material";
 
+// Mapeo de site_name a site_id para el sitio
+const siteMapping = {
+  'MCC1': 1,
+  'MCC2': 2,
+  'LOGIKA': 3,
+};
+
 export const ModalEditUsers = ({ open, handleClose, handleEditUser, userToEdit }) => {
   const [newRole, setNewRole] = useState('');
   const [newFirstName, setNewFirstName] = useState('');
   const [newLastName, setNewLastName] = useState('');
   const [newEmail, setNewEmail] = useState('');
   const [newStatus, setNewStatus] = useState('');
+  const [newSite, setNewSite] = useState(''); // Agregamos el estado para el sitio
 
   useEffect(() => {
     if (userToEdit) {
+      // Asignar valores del usuario
       setNewFirstName(userToEdit.first_name || '');
       setNewLastName(userToEdit.last_name || '');
       setNewEmail(userToEdit.email || '');
       setNewRole(userToEdit.role || '');
-      setNewStatus(userToEdit.is_active ? 'active' : 'inactive');
+      setNewStatus(userToEdit.is_active ? 'true' : 'false');
+
+      // Mapear el site_name a site_id
+      setNewSite(siteMapping[userToEdit.site_name] || '');
     }
   }, [userToEdit]);
 
@@ -37,7 +49,8 @@ export const ModalEditUsers = ({ open, handleClose, handleEditUser, userToEdit }
       first_name: newFirstName,
       last_name: newLastName,
       role: newRole,
-      is_active: newStatus,
+      is_active: newStatus === 'true', // Convertir el estado a booleano
+      site_id: newSite, // Añadimos el site_id al payload
     };
 
     handleEditUser(updatedUser);
@@ -76,8 +89,8 @@ export const ModalEditUsers = ({ open, handleClose, handleEditUser, userToEdit }
             value={newStatus}
             onChange={(e) => setNewStatus(e.target.value)}
           >
-            <MenuItem value={true}>Activo</MenuItem>
-            <MenuItem value={false}>Inactivo</MenuItem>
+            <MenuItem value="true">Activo</MenuItem>
+            <MenuItem value="false">Inactivo</MenuItem>
           </Select>
         </FormControl>
         <FormControl fullWidth sx={{ mb: 2 }}>
@@ -89,6 +102,17 @@ export const ModalEditUsers = ({ open, handleClose, handleEditUser, userToEdit }
             <MenuItem value="admin">Admin</MenuItem>
             <MenuItem value="operator">Operator</MenuItem>
             <MenuItem value="manager">Manager</MenuItem>
+          </Select>
+        </FormControl>
+        <FormControl fullWidth sx={{ mb: 2 }}>
+          <InputLabel>Site</InputLabel>
+          <Select
+            value={newSite}
+            onChange={(e) => setNewSite(e.target.value)}
+          >
+            <MenuItem value={1}>MCC1</MenuItem>
+            <MenuItem value={2}>MCC2</MenuItem>
+            <MenuItem value={3}>LOGIKA</MenuItem>
           </Select>
         </FormControl>
       </DialogContent>
@@ -113,5 +137,6 @@ ModalEditUsers.propTypes = {
     email: PropTypes.string.isRequired,
     role: PropTypes.string.isRequired,
     is_active: PropTypes.bool.isRequired,
+    site_name: PropTypes.string.isRequired, // Añadimos este campo para mapear el site
   }),
 };
