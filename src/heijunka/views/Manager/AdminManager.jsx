@@ -27,9 +27,9 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import dayjs from "dayjs";
 import Swal from "sweetalert2";
+import { useSites } from "../../api";
 import useUsers from "../../api/useUsers";
 import useClients from "../../api/useClients";
-import { useSites } from "../../api";
 
 export const AdminManager = () => {
   const { sites, loading: loadingSites, error: errorSites } = useSites();
@@ -268,23 +268,30 @@ export const AdminManager = () => {
         cancelButtonText: "Cancelar",
       }).then((result) => {
         if (result.isConfirmed) {
-          const worksheet = XLSX.utils.json_to_sheet(
-            Object.keys(tasks).map((hour) => {
-              return Object.keys(tasks[hour]).map((collaborator) => ({
-                hour,
-                collaborator,
-                tasks: tasks[hour][collaborator].map(
-                  (task) =>
-                    `Tarea: ${task.description}, Cliente: ${task.clients.join(
-                      ", "
-                    )}, Cantidad: ${task.quantity}, Estado: ${task.status}`
-                ),
-              }));
-            })
-          );
+          const data = [];
+
+          Object.keys(tasks).forEach((hour) => {
+            Object.keys(tasks[hour]).forEach((collaboratorId) => {
+              tasks[hour][collaboratorId].forEach((task) => {
+                data.push({
+                  Hora: `${hour}:00`,
+                  Colaborador: collaborators.find(
+                    (collab) => collab.id === collaboratorId
+                  )?.first_name,
+                  Descripción: task.description,
+                  Cliente: task.clients.join(", "),
+                  Cantidad: task.quantity,
+                  Estado: task.status,
+                });
+              });
+            });
+          });
+
+          const worksheet = XLSX.utils.json_to_sheet(data);
           const workbook = XLSX.utils.book_new();
-          XLSX.utils.book_append_sheet(workbook, worksheet, "Heijunka Report");
-          XLSX.writeFile(workbook, "heijunka_report.xlsx");
+          XLSX.utils.book_append_sheet(workbook, worksheet, "Reporte de Tareas");
+          XLSX.writeFile(workbook, "reporte_tareas.xlsx");
+
           Swal.fire("Descargado", "El informe se ha descargado con éxito.", "success");
         }
       });
@@ -295,21 +302,50 @@ export const AdminManager = () => {
   };
 
   const handleChangeTaskStatus = (hour, collaboratorId, index) => {
-    setTasks((prevTasks) => {
-      const updatedTasks = { ...prevTasks };
-      const task = updatedTasks[hour][collaboratorId][index];
-      const currentHour = currentTime.hour();
+    const task = tasks[hour][collaboratorId][index];
 
-      if (task.status === "pending" && currentHour >= hour) {
-        task.status = "in-progress";
-      } else if (task.status === "in-progress") {
-        task.status = "completed";
-      } else {
-        task.status = "pending";
-      }
-
-      return updatedTasks;
-    });
+    if (task.status === "pending") {
+      Swal.fire({
+        title: "¿Quieres iniciar esta tarea?",
+        text: "Una vez iniciada, la tarea pasará a estar en progreso.",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Sí, iniciar",
+        cancelButtonText: "Cancelar",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          setTasks((prevTasks) => {
+            const updatedTasks = { ...prevTasks };
+            updatedTasks[hour][collaboratorId][index].status = "in-progress";
+            return updatedTasks;
+          });
+        }
+      });
+    } else if (task.status === "in-progress") {
+      Swal.fire({
+        title: "¿Quieres finalizar esta tarea?",
+        text: "Una vez finalizada, no podrás volver a cambiar su estado.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sí, finalizar",
+        cancelButtonText: "Cancelar",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          setTasks((prevTasks) => {
+            const updatedTasks = { ...prevTasks };
+            updatedTasks[hour][collaboratorId][index].status = "completed";
+            return updatedTasks;
+          });
+        }
+      });
+    } else {
+      Swal.fire({
+        title: "Esta tarea ya está completada.",
+        text: "No puedes cambiar el estado de una tarea completada.",
+        icon: "info",
+        confirmButtonText: "Entendido",
+      });
+    }
   };
 
   const getTaskButtonColor = (task, hour) => {
@@ -631,7 +667,7 @@ export const AdminManager = () => {
                                   sx={{
                                     position: "absolute",
                                     top: "10px",
-                                    right: "40px",
+                                    right: "10px",
                                   }}
                                 >
                                   <MoreVert />
