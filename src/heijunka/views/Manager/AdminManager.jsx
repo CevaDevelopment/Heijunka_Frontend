@@ -27,7 +27,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import dayjs from "dayjs";
 import useClients from "../../api/useClients";
-import useUsers from "../../api/useUsers";
+import useUsers from "../../.api/useUsers";
 import Swal from "sweetalert2";
 
 export const AdminManager = () => {
@@ -59,9 +59,7 @@ export const AdminManager = () => {
   const [selectedTask, setSelectedTask] = useState(null);
   const [editingTask, setEditingTask] = useState(null);
 
-  // Constante que define el tiempo límite (48 horas en milisegundos)
-const TIME_LIMIT = 48 * 60 * 60 * 1000; // 48 horas
-
+  const TIME_LIMIT = 48 * 60 * 60 * 1000;
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -132,12 +130,12 @@ const TIME_LIMIT = 48 * 60 * 60 * 1000; // 48 horas
 
   const handleResetTasks = () => {
     Swal.fire({
-      title: '¿Estás seguro?',
+      title: "¿Estás seguro?",
       text: "Esto eliminará todas las tareas generadas.",
-      icon: 'warning',
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonText: 'Sí, reiniciar',
-      cancelButtonText: 'Cancelar',
+      confirmButtonText: "Sí, reiniciar",
+      cancelButtonText: "Cancelar",
     }).then((result) => {
       if (result.isConfirmed) {
         setTasks({});
@@ -146,7 +144,7 @@ const TIME_LIMIT = 48 * 60 * 60 * 1000; // 48 horas
         localStorage.removeItem("generated");
         setFormVisible(true);
         setGenerated(false);
-        Swal.fire('Reiniciado', 'Las tareas han sido reiniciadas.', 'success');
+        Swal.fire("Reiniciado", "Las tareas han sido reiniciadas.", "success");
       }
     });
   };
@@ -236,12 +234,12 @@ const TIME_LIMIT = 48 * 60 * 60 * 1000; // 48 horas
 
   const handleSaveTasks = () => {
     Swal.fire({
-      title: '¿Guardar cambios?',
+      title: "¿Guardar cambios?",
       text: "Esto guardará las tareas en progreso.",
-      icon: 'info',
+      icon: "info",
       showCancelButton: true,
-      confirmButtonText: 'Guardar',
-      cancelButtonText: 'Cancelar',
+      confirmButtonText: "Guardar",
+      cancelButtonText: "Cancelar",
     }).then((result) => {
       if (result.isConfirmed) {
         const currentTime = new Date().getTime();
@@ -252,49 +250,48 @@ const TIME_LIMIT = 48 * 60 * 60 * 1000; // 48 horas
         localStorage.setItem("startTime", startTime ? startTime.toISOString() : null);
         localStorage.setItem("endTime", endTime ? endTime.toISOString() : null);
         localStorage.setItem("generated", JSON.stringify(generated));
-        Swal.fire('Guardado', 'Las tareas han sido guardadas.', 'success');
+        Swal.fire("Guardado", "Las tareas han sido guardadas.", "success");
       }
     });
   };
 
   const handleDownloadReport = async () => {
-  try {
-    const XLSX = await import('xlsx');
-    Swal.fire({
-      title: '¿Descargar informe?',
-      text: "Esto generará un archivo Excel con las tareas por colaborador.",
-      icon: 'info',
-      showCancelButton: true,
-      confirmButtonText: 'Descargar',
-      cancelButtonText: 'Cancelar',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        const worksheet = XLSX.utils.json_to_sheet(
-          Object.keys(tasks).map((hour) => {
-            return Object.keys(tasks[hour]).map((collaborator) => ({
-              hour,
-              collaborator,
-              tasks: tasks[hour][collaborator].map(
-                (task) =>
-                  `Tarea: ${task.description}, Cliente: ${task.clients.join(
-                    ", "
-                  )}, Cantidad: ${task.quantity}, Estado: ${task.status}`
-              ),
-            }));
-          })
-        );
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Heijunka Report");
-        XLSX.writeFile(workbook, "heijunka_report.xlsx");
-        Swal.fire('Descargado', 'El informe se ha descargado con éxito.', 'success');
-      }
-    });
-  } catch (error) {
-    console.error("Error al cargar xlsx: ", error);
-    Swal.fire('Error', 'Hubo un error al descargar el informe.', 'error');
-  }
-};
-
+    try {
+      const XLSX = await import("xlsx");
+      Swal.fire({
+        title: "¿Descargar informe?",
+        text: "Esto generará un archivo Excel con las tareas por colaborador.",
+        icon: "info",
+        showCancelButton: true,
+        confirmButtonText: "Descargar",
+        cancelButtonText: "Cancelar",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          const worksheet = XLSX.utils.json_to_sheet(
+            Object.keys(tasks).map((hour) => {
+              return Object.keys(tasks[hour]).map((collaborator) => ({
+                hour,
+                collaborator,
+                tasks: tasks[hour][collaborator].map(
+                  (task) =>
+                    `Tarea: ${task.description}, Cliente: ${task.clients.join(
+                      ", "
+                    )}, Cantidad: ${task.quantity}, Estado: ${task.status}`
+                ),
+              }));
+            })
+          );
+          const workbook = XLSX.utils.book_new();
+          XLSX.utils.book_append_sheet(workbook, worksheet, "Heijunka Report");
+          XLSX.writeFile(workbook, "heijunka_report.xlsx");
+          Swal.fire("Descargado", "El informe se ha descargado con éxito.", "success");
+        }
+      });
+    } catch (error) {
+      console.error("Error al cargar xlsx: ", error);
+      Swal.fire("Error", "Hubo un error al descargar el informe.", "error");
+    }
+  };
 
   const handleChangeTaskStatus = (hour, collaboratorId, index) => {
     setTasks((prevTasks) => {
@@ -464,7 +461,7 @@ const TIME_LIMIT = 48 * 60 * 60 * 1000; // 48 horas
                   timeCaption="Inicio"
                   dateFormat="HH:mm"
                   placeholderText="Hora de Inicio"
-                  customInput={<input readOnly style={inputStyle} />}
+                  customInput={<TextField variant="outlined" fullWidth />}
                 />
               </Box>
             </Grid>
@@ -486,25 +483,21 @@ const TIME_LIMIT = 48 * 60 * 60 * 1000; // 48 horas
                   timeCaption="Fin"
                   dateFormat="HH:mm"
                   placeholderText="Hora de Fin"
-                  customInput={<input readOnly style={inputStyle} />}
+                  customInput={<TextField variant="outlined" fullWidth />}
                 />
               </Box>
             </Grid>
           </Grid>
 
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              marginTop: "20px",
-            }}
-          >
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
             <Button
               variant="contained"
               onClick={handleGenerate}
-              disabled={
-                !startTime || !endTime || selectedCollaborators.length === 0
-              }
+              disabled={!startTime || !endTime || selectedCollaborators.length === 0}
+              sx={{
+                backgroundColor: "#CC3329",
+                "&:hover": { backgroundColor: "#b32b23" },
+              }}
             >
               Generar Heijunka
             </Button>
@@ -517,27 +510,26 @@ const TIME_LIMIT = 48 * 60 * 60 * 1000; // 48 horas
           <Typography
             variant="h4"
             textAlign="center"
-            sx={{ mb: 10, fontWeight: "bold" }}
+            sx={{ mb: 10, color: "#0C1A52", fontWeight: "bold" }}
           >
             Tareas Asignadas
           </Typography>
           <Table
             sx={{
-              border: "4px solid #333",
+              border: "2px solid #ddd",
               borderCollapse: "separate",
               borderRadius: "15px",
             }}
           >
             <TableHead>
-              <TableRow style={{ backgroundColor: "#f4f4f4" }}>
+              <TableRow sx={{ backgroundColor: "#0C1A52" }}>
                 <TableCell
                   align="center"
-                  style={{
+                  sx={{
                     fontSize: "18px",
                     fontWeight: "bold",
-                    color: "#333",
+                    color: "#ffffff",
                     padding: "12px 16px",
-                    borderBottom: "2px solid #ddd",
                   }}
                 >
                   Colaboradores
@@ -546,12 +538,11 @@ const TIME_LIMIT = 48 * 60 * 60 * 1000; // 48 horas
                   <TableCell
                     key={hour}
                     align="center"
-                    style={{
+                    sx={{
                       fontSize: "16px",
                       fontWeight: "bold",
-                      color: "#333",
+                      color: "#ffffff",
                       padding: "12px 16px",
-                      borderBottom: "2px solid #ddd",
                     }}
                   >
                     {hour}:00
@@ -567,19 +558,17 @@ const TIME_LIMIT = 48 * 60 * 60 * 1000; // 48 horas
 
                 return (
                   <TableRow key={collaboratorId}>
-                    <TableCell align="center">
-                      {collaborator?.first_name}
-                    </TableCell>
+                    <TableCell align="center">{collaborator?.first_name}</TableCell>
                     {hours.map((hour) => (
                       <TableCell
                         key={hour}
                         align="left"
                         sx={{
-                          padding: "20px", // Ajustar padding para hacerlo más espacioso
+                          padding: "16px",
+                          backgroundColor: "#f5f5f5",
                           borderRadius: "12px",
-                          backgroundColor: "#f9f9f9",
                           position: "relative",
-                          maxWidth: "200px", // Ajustar el ancho máximo para hacerlo más grande
+                          maxWidth: "200px",
                         }}
                       >
                         {tasks[hour]?.[collaboratorId]?.map((task, index) => (
@@ -587,20 +576,18 @@ const TIME_LIMIT = 48 * 60 * 60 * 1000; // 48 horas
                             key={index}
                             sx={{
                               backgroundColor: "white",
-                              padding: "16px",
-                              flexDirection: "column",
+                              padding: "12px",
                               display: "flex",
-                              justifyContent: "space-between",
+                              flexDirection: "column",
                               border: "1px solid lightgray",
                               borderRadius: "12px",
                               marginTop: "12px",
                               boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
-                              position: "relative",
                             }}
                           >
                             <Typography
                               variant="body1"
-                              sx={{ fontWeight: "bold" }}
+                              sx={{ fontWeight: "bold", color: "#0C1A52" }}
                             >
                               Tarea: {capitalizeFirstWord(task.description)}
                             </Typography>
@@ -626,17 +613,11 @@ const TIME_LIMIT = 48 * 60 * 60 * 1000; // 48 horas
                                 color: "white",
                                 minWidth: "30px",
                                 height: "30px",
-                                position: "absolute",
-                                top: "10px",
-                                right: "10px",
                                 borderRadius: "50%",
+                                alignSelf: "flex-end",
                               }}
                               onClick={() =>
-                                handleChangeTaskStatus(
-                                  hour,
-                                  collaboratorId,
-                                  index
-                                )
+                                handleChangeTaskStatus(hour, collaboratorId, index)
                               }
                             ></Button>
 
@@ -644,15 +625,12 @@ const TIME_LIMIT = 48 * 60 * 60 * 1000; // 48 horas
                               <>
                                 <IconButton
                                   onClick={(event) =>
-                                    handleOpenMenu(
-                                      event,
-                                      task
-                                    )
+                                    handleOpenMenu(event, task)
                                   }
                                   sx={{
                                     position: "absolute",
                                     top: "10px",
-                                    right: "40px", // Ajustar para estar a la derecha
+                                    right: "40px",
                                   }}
                                 >
                                   <MoreVert />
@@ -660,29 +638,20 @@ const TIME_LIMIT = 48 * 60 * 60 * 1000; // 48 horas
                                 <Menu
                                   anchorEl={anchorEl}
                                   open={
-                                    Boolean(anchorEl) &&
-                                    selectedTask === task
+                                    Boolean(anchorEl) && selectedTask === task
                                   }
                                   onClose={handleCloseMenu}
                                 >
                                   <MenuItem
                                     onClick={() =>
-                                      handleEditTask(
-                                        hour,
-                                        collaboratorId,
-                                        task
-                                      )
+                                      handleEditTask(hour, collaboratorId, task)
                                     }
                                   >
                                     Editar
                                   </MenuItem>
                                   <MenuItem
                                     onClick={() =>
-                                      handleDeleteTask(
-                                        hour,
-                                        collaboratorId,
-                                        index
-                                      )
+                                      handleDeleteTask(hour, collaboratorId, index)
                                     }
                                   >
                                     Eliminar
@@ -695,11 +664,9 @@ const TIME_LIMIT = 48 * 60 * 60 * 1000; // 48 horas
 
                         {!tasks[hour]?.[collaboratorId]?.length && (
                           <IconButton
-                            onClick={() =>
-                              handleOpenModal(hour, collaboratorId)
-                            }
+                            onClick={() => handleOpenModal(hour, collaboratorId)}
                             sx={{
-                              color: "primary.main",
+                              color: "#CC3329",
                               position: "absolute",
                               bottom: "50%",
                               left: "50%",
@@ -727,24 +694,33 @@ const TIME_LIMIT = 48 * 60 * 60 * 1000; // 48 horas
           >
             <Button
               variant="contained"
-              color="secondary"
+              sx={{
+                backgroundColor: "#CC3329",
+                "&:hover": { backgroundColor: "#b32b23" },
+              }}
               onClick={handleResetTasks}
             >
               Reiniciar Tareas
             </Button>
             <Button
               variant="contained"
-              color="success"
+              sx={{
+                backgroundColor: "#0C1A52",
+                ml: 2,
+                "&:hover": { backgroundColor: "#09123c" },
+              }}
               onClick={handleSaveTasks}
-              sx={{ ml: 2 }}
             >
               Guardar Tareas
             </Button>
             <Button
               variant="contained"
-              color="primary"
+              sx={{
+                backgroundColor: "#CC3329",
+                ml: 2,
+                "&:hover": { backgroundColor: "#b32b23" },
+              }}
               onClick={handleDownloadReport}
-              sx={{ ml: 2 }}
             >
               <SaveAlt /> Descargar Informe
             </Button>
@@ -800,7 +776,13 @@ const TIME_LIMIT = 48 * 60 * 60 * 1000; // 48 horas
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseModal}>Cancelar</Button>
-          <Button onClick={handleAddOrEditTask}>
+          <Button
+            sx={{
+              backgroundColor: "#0C1A52",
+              "&:hover": { backgroundColor: "#09123c" },
+            }}
+            onClick={handleAddOrEditTask}
+          >
             {editingTask ? "Editar" : "Agregar"}
           </Button>
         </DialogActions>
@@ -808,24 +790,3 @@ const TIME_LIMIT = 48 * 60 * 60 * 1000; // 48 horas
     </Box>
   );
 };
-
-const inputStyle = {
-  width: "100%",
-  padding: "12px 15px",
-  border: "1px solid #007BFF",
-  borderRadius: "4px",
-  fontSize: "16px",
-  color: "#333",
-  backgroundColor: "#f8f9fa",
-  transition: "border-color 0.3s, box-shadow 0.3s",
-  "&:focus": {
-    borderColor: "#0056b3",
-    boxShadow: "0 0 5px rgba(0, 123, 255, 0.5)",
-    outline: "none",
-  },
-  "&:disabled": {
-    backgroundColor: "#e9ecef",
-    color: "#6c757d",
-  },
-};
-
