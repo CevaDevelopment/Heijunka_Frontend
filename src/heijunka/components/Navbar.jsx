@@ -30,9 +30,9 @@ export const Navbar = ({ drawerWidth = 0, onSelectModule }) => {
         sx={{
           width: { sm: `calc(100% - ${drawerWidth}px)` },
           ml: { sm: `${drawerWidth}px` },
-          backgroundColor: "#293f8b ",
+          backgroundColor: "#0C1A52", // Color principal azul oscuro
           boxShadow: "none",
-          borderBottom: "2px solid #4C6EF5", // Línea decorativa para mejor estilo
+          borderBottom: "2px solid #CC3329", // Línea decorativa en rojo
         }}
       >
         <Toolbar>
@@ -84,13 +84,13 @@ export const Navbar = ({ drawerWidth = 0, onSelectModule }) => {
                 sx={{
                   color: selectedSection === 0 ? "#FFFFFF" : "#A0AEC0",
                   backgroundColor:
-                    selectedSection === 0 ? "#4C6EF5" : "transparent",
+                    selectedSection === 0 ? "#CC3329" : "transparent", // Fondo rojo para seleccionado
                   borderRadius: "8px",
                   px: 2,
                   py: 1,
                   transition: "background-color 0.3s ease",
                   "&:hover": {
-                    backgroundColor: "#4C6EF5",
+                    backgroundColor: "#CC3329", // Fondo rojo al hacer hover
                     color: "#FFFFFF",
                   },
                 }}
@@ -105,13 +105,13 @@ export const Navbar = ({ drawerWidth = 0, onSelectModule }) => {
                 sx={{
                   color: selectedSection === 1 ? "#FFFFFF" : "#A0AEC0",
                   backgroundColor:
-                    selectedSection === 1 ? "#4C6EF5" : "transparent",
+                    selectedSection === 1 ? "#CC3329" : "transparent", // Fondo rojo para seleccionado
                   borderRadius: "8px",
                   px: 2,
                   py: 1,
                   transition: "background-color 0.3s ease",
                   "&:hover": {
-                    backgroundColor: "#4C6EF5",
+                    backgroundColor: "#CC3329", // Fondo rojo al hacer hover
                     color: "#FFFFFF",
                   },
                 }}
@@ -150,10 +150,12 @@ export const Navbar = ({ drawerWidth = 0, onSelectModule }) => {
               color="error"
               onClick={startLogout}
               sx={{
-                color: "#E53E3E",
+                color: "#FFFFFF",
+                backgroundColor: "#E53E3E", // Color de fondo rojo
+                borderRadius: "8px",
                 "&:hover": {
-                  backgroundColor: "#FEB2B2",
-                  color: "#1E293B",
+                  backgroundColor: "#C53030", // Más oscuro al hacer hover
+                  color: "#FFFFFF",
                 },
                 ml: 2,
               }}

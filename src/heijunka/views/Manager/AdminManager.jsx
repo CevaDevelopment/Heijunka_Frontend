@@ -21,7 +21,7 @@ import {
   DialogTitle,
   Menu,
 } from "@mui/material";
-import { Assignment, ExpandMore, MoreVert, SaveAlt } from "@mui/icons-material";
+import { Assignment, ExpandMore, MoreVert } from "@mui/icons-material";
 
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -254,51 +254,6 @@ export const AdminManager = () => {
         Swal.fire("Guardado", "Las tareas han sido guardadas.", "success");
       }
     });
-  };
-
-  const handleDownloadReport = async () => {
-    try {
-      const XLSX = await import("xlsx");
-      Swal.fire({
-        title: "¿Descargar informe?",
-        text: "Esto generará un archivo Excel con las tareas por colaborador.",
-        icon: "info",
-        showCancelButton: true,
-        confirmButtonText: "Descargar",
-        cancelButtonText: "Cancelar",
-      }).then((result) => {
-        if (result.isConfirmed) {
-          const data = [];
-
-          Object.keys(tasks).forEach((hour) => {
-            Object.keys(tasks[hour]).forEach((collaboratorId) => {
-              tasks[hour][collaboratorId].forEach((task) => {
-                data.push({
-                  Hora: `${hour}:00`,
-                  Colaborador: collaborators.find(
-                    (collab) => collab.id === collaboratorId
-                  )?.first_name,
-                  Descripción: task.description,
-                  Cliente: task.clients.join(", "),
-                  Cantidad: task.quantity,
-                  Estado: task.status,
-                });
-              });
-            });
-          });
-
-          const worksheet = XLSX.utils.json_to_sheet(data);
-          const workbook = XLSX.utils.book_new();
-          XLSX.utils.book_append_sheet(workbook, worksheet, "Reporte de Tareas");
-          XLSX.writeFile(workbook, "reporte_tareas.xlsx");
-
-          Swal.fire("Descargado", "El informe se ha descargado con éxito.", "success");
-        }
-      });
-    } catch (error) {
-      console.error("Error al cargar xlsx: ", error);
-      Swal.fire("Error", "Hubo un error al descargar el informe.", "error");
-    }
   };
 
   const handleChangeTaskStatus = (hour, collaboratorId, index) => {
@@ -749,17 +704,6 @@ export const AdminManager = () => {
               onClick={handleSaveTasks}
             >
               Guardar Tareas
-            </Button>
-            <Button
-              variant="contained"
-              sx={{
-                backgroundColor: "#CC3329",
-                ml: 2,
-                "&:hover": { backgroundColor: "#b32b23" },
-              }}
-              onClick={handleDownloadReport}
-            >
-              <SaveAlt /> Descargar Informe
             </Button>
           </Box>
         </Box>
