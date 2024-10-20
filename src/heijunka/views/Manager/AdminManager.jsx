@@ -29,6 +29,8 @@ import dayjs from "dayjs";
 import useClients from "../../api/useClients";
 import useUsers from "../../api/useUsers";
 import Swal from "sweetalert2";
+import icon from "@mui/icons-material/icon";
+import { utils, writeFile } from "xlsx";
 
 export const AdminManager = () => {
   const { sites, loading: loadingSites, error: errorSites } = useSites();
@@ -258,7 +260,8 @@ const TIME_LIMIT = 48 * 60 * 60 * 1000; // 48 horas
   };
 
   const handleDownloadReport = async () => {
-    const { default: XLSX } = await import("xlsx"); 
+  try {
+    const XLSX = await import('xlsx');
     Swal.fire({
       title: '¿Descargar informe?',
       text: "Esto generará un archivo Excel con las tareas por colaborador.",
@@ -288,7 +291,12 @@ const TIME_LIMIT = 48 * 60 * 60 * 1000; // 48 horas
         Swal.fire('Descargado', 'El informe se ha descargado con éxito.', 'success');
       }
     });
-  };
+  } catch (error) {
+    console.error("Error al cargar xlsx: ", error);
+    Swal.fire('Error', 'Hubo un error al descargar el informe.', 'error');
+  }
+};
+
 
   const handleChangeTaskStatus = (hour, collaboratorId, index) => {
     setTasks((prevTasks) => {
