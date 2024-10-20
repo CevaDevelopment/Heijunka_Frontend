@@ -29,10 +29,6 @@ import dayjs from "dayjs";
 import useClients from "../../api/useClients";
 import useUsers from "../../api/useUsers";
 import Swal from "sweetalert2";
-import * as XLSX from "xlsx";
-
-// Constante que define el tiempo límite (48 horas en milisegundos)
-const TIME_LIMIT = 48 * 60 * 60 * 1000;
 
 export const AdminManager = () => {
   const { sites, loading: loadingSites, error: errorSites } = useSites();
@@ -62,6 +58,10 @@ export const AdminManager = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedTask, setSelectedTask] = useState(null);
   const [editingTask, setEditingTask] = useState(null);
+
+  // Constante que define el tiempo límite (48 horas en milisegundos)
+const TIME_LIMIT = 48 * 60 * 60 * 1000; // 48 horas
+
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -257,7 +257,8 @@ export const AdminManager = () => {
     });
   };
 
-  const handleDownloadReport = () => {
+  const handleDownloadReport = async () => {
+    const { default: XLSX } = await import("xlsx"); 
     Swal.fire({
       title: '¿Descargar informe?',
       text: "Esto generará un archivo Excel con las tareas por colaborador.",
@@ -821,3 +822,4 @@ const inputStyle = {
     color: "#6c757d",
   },
 };
+
