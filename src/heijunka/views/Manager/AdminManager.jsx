@@ -29,8 +29,6 @@ import dayjs from "dayjs";
 import useClients from "../../api/useClients";
 import useUsers from "../../api/useUsers";
 import Swal from "sweetalert2";
-import icon from "@mui/icons-material/icon";
-import { utils, writeFile } from "xlsx";
 
 export const AdminManager = () => {
   const { sites, loading: loadingSites, error: errorSites } = useSites();
