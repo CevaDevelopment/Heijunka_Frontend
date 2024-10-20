@@ -642,7 +642,7 @@ export const AdminManager = () => {
                           </Box>
                         ))}
 
-                        {!tasks[hour]?.[collaboratorId] && (
+                        {!tasks[hour]?.[collaboratorId]?.length && (
                           <IconButton
                             onClick={() =>
                               handleOpenModal(hour, collaboratorId)
