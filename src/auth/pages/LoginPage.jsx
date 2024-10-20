@@ -33,66 +33,71 @@ export const LoginPage = () => {
             <Box
                 sx={{
                     display: 'flex',
-                    flexDirection: 'column',
+                    justifyContent: 'center',
                     alignItems: 'center',
-                    mb: 4,
+                    minHeight: '100vh',
+                    backgroundImage: `url(${logo})`,
+                    backgroundRepeat: 'no-repeat',
+                    backgroundSize: '50%',
+                    backgroundPosition: 'center',
+                    opacity: 0.1, // Ajusta la opacidad para crear el efecto de marca de agua
                 }}
             >
-                <img src={logo} alt="Logo" style={{ width: '140px', marginBottom: '20px' }} />
-            </Box>
+                <Box sx={{ width: '100%', maxWidth: '400px' }}>
+                    <form onSubmit={loginSubmit}>
+                        <Grid container spacing={2}>
+                            <Grid item xs={12} sx={{ mt: 2 }}>
+                                <TextField
+                                    required
+                                    label="Correo"
+                                    type="email"
+                                    placeholder="correo@cevalogistics.com"
+                                    name='loginEmail'
+                                    value={loginEmail}
+                                    onChange={onInputChange}
+                                    fullWidth
+                                />
+                            </Grid>
 
-            <form onSubmit={loginSubmit}>
-                <Grid container spacing={2}>
-                    <Grid item xs={12} sx={{ mt: 2 }}>
-                        <TextField
-                            required
-                            label="Correo"
-                            type="email"
-                            placeholder="correo@cevalogistics.com"
-                            name='loginEmail'
-                            value={loginEmail}
-                            onChange={onInputChange}
-                            fullWidth
-                        />
-                    </Grid>
+                            <Grid item xs={12} sx={{ mt: 2 }}>
+                                <TextField
+                                    required
+                                    label="Contraseña"
+                                    type="password"
+                                    placeholder="Contraseña"
+                                    name='loginPassword'
+                                    value={loginPassword}
+                                    onChange={onInputChange}
+                                    fullWidth
+                                />
+                            </Grid>
 
-                    <Grid item xs={12} sx={{ mt: 2 }}>
-                        <TextField
-                            required
-                            label="Contraseña"
-                            type="password"
-                            placeholder="Contraseña"
-                            name='loginPassword'
-                            value={loginPassword}
-                            onChange={onInputChange}
-                            fullWidth
-                        />
-                    </Grid>
+                            <Grid container spacing={2} sx={{ mb: 2, mt: 1 }}>
+                                <Grid item xs={12} sm={6}>
+                                    <Button
+                                        variant="contained"
+                                        fullWidth
+                                        type="submit"
+                                        sx={{
+                                            backgroundColor: "#CC3329",
+                                            "&:hover": { backgroundColor: "#b32b23" },
+                                            color: "#FFFFFF",
+                                        }}
+                                    >
+                                        Login
+                                    </Button>
+                                </Grid>
+                            </Grid>
 
-                    <Grid container spacing={2} sx={{ mb: 2, mt: 1, ml: 3 }}>
-                        <Grid item xs={12} sm={6}>
-                            <Button
-                                variant="contained"
-                                fullWidth
-                                type="submit"
-                                sx={{
-                                    backgroundColor: "#CC3329",
-                                    "&:hover": { backgroundColor: "#b32b23" },
-                                    color: "#FFFFFF",
-                                }}
-                            >
-                                Login
-                            </Button>
+                            <Grid container direction="row" justifyContent="end">
+                                <Link component={RouterLink} color="inherit" to="/auth/register" sx={{ color: "#0C1A52" }}>
+                                    Crear una cuenta
+                                </Link>
+                            </Grid>
                         </Grid>
-                    </Grid>
-
-                    <Grid container direction="row" justifyContent="end">
-                        <Link component={RouterLink} color="inherit" to="/auth/register" sx={{ color: "#0C1A52" }}>
-                            Crear una cuenta
-                        </Link>
-                    </Grid>
-                </Grid>
-            </form>
+                    </form>
+                </Box>
+            </Box>
         </AuthLayout>
     );
 };

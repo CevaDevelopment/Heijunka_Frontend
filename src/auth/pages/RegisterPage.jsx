@@ -38,101 +38,106 @@ export const RegisterPage = () => {
       <Box
         sx={{
           display: 'flex',
-          flexDirection: 'column',
+          justifyContent: 'center',
           alignItems: 'center',
-          mb: 4,
+          minHeight: '100vh',
+          backgroundImage: `url(${logo})`,
+          backgroundRepeat: 'no-repeat',
+          backgroundSize: '50%',
+          backgroundPosition: 'center',
+          opacity: 0.1, // Ajusta la opacidad para crear el efecto de marca de agua
         }}
       >
-        <img src={logo} alt="Logo" style={{ width: '140px', marginBottom: '20px' }} />
-      </Box>
+        <Box sx={{ width: '100%', maxWidth: '400px' }}>
+          <form onSubmit={registerSubmit}>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sx={{ mt: 2 }}>
+                <TextField
+                  label="Nombre"
+                  type="text"
+                  placeholder='Nombre'
+                  name='registerName'
+                  value={registerName}
+                  onChange={onInputChange}
+                  fullWidth
+                />
+              </Grid>
 
-      <form onSubmit={registerSubmit}>
-        <Grid container spacing={2}>
-          <Grid item xs={12} sx={{ mt: 2 }}>
-            <TextField
-              label="Nombre"
-              type="text"
-              placeholder='Nombre'
-              name='registerName'
-              value={registerName}
-              onChange={onInputChange}
-              fullWidth
-            />
-          </Grid>
+              <Grid item xs={12} sx={{ mt: 2 }}>
+                <TextField
+                  label="Apellido"
+                  type="text"
+                  placeholder='Apellido'
+                  name='registerApellido'
+                  value={registerApellido}
+                  onChange={onInputChange}
+                  fullWidth
+                />
+              </Grid>
 
-          <Grid item xs={12} sx={{ mt: 2 }}>
-            <TextField
-              label="Apellido"
-              type="text"
-              placeholder='Apellido'
-              name='registerApellido'
-              value={registerApellido}
-              onChange={onInputChange}
-              fullWidth
-            />
-          </Grid>
+              <Grid item xs={12} sx={{ mt: 2 }}>
+                <TextField
+                  label="Correo"
+                  type="email"
+                  placeholder='correo@google.com'
+                  name='registerEmail'
+                  value={registerEmail}
+                  onChange={onInputChange}
+                  fullWidth
+                />
+              </Grid>
 
-          <Grid item xs={12} sx={{ mt: 2 }}>
-            <TextField
-              label="Correo"
-              type="email"
-              placeholder='correo@google.com'
-              name='registerEmail'
-              value={registerEmail}
-              onChange={onInputChange}
-              fullWidth
-            />
-          </Grid>
+              <Grid item xs={12} sx={{ mt: 2 }}>
+                <TextField
+                  label="Contraseña"
+                  type="password"
+                  placeholder='Contraseña'
+                  name='registerPassword'
+                  value={registerPassword}
+                  onChange={onInputChange}
+                  fullWidth
+                />
+              </Grid>
 
-          <Grid item xs={12} sx={{ mt: 2 }}>
-            <TextField
-              label="Contraseña"
-              type="password"
-              placeholder='Contraseña'
-              name='registerPassword'
-              value={registerPassword}
-              onChange={onInputChange}
-              fullWidth
-            />
-          </Grid>
+              <Grid item xs={12} sx={{ mt: 2 }}>
+                <TextField
+                  label="Confirmar Contraseña"
+                  type="password"
+                  placeholder='Confirmar Contraseña'
+                  name='registerPasswordConfirm'
+                  value={registerPasswordConfirm}
+                  onChange={onInputChange}
+                  fullWidth
+                />
+              </Grid>
 
-          <Grid item xs={12} sx={{ mt: 2 }}>
-            <TextField
-              label="Confirmar Contraseña"
-              type="password"
-              placeholder='Confirmar Contraseña'
-              name='registerPasswordConfirm'
-              value={registerPasswordConfirm}
-              onChange={onInputChange}
-              fullWidth
-            />
-          </Grid>
+              <Grid container spacing={2} sx={{ mb: 2, mt: 1 }}>
+                <Grid item xs={12}>
+                  <Button
+                    variant="contained"
+                    fullWidth
+                    type="submit"
+                    sx={{
+                      backgroundColor: "#CC3329",
+                      "&:hover": { backgroundColor: "#b32b23" },
+                      color: "#FFFFFF",
+                    }}
+                  >
+                    Crear cuenta
+                  </Button>
+                </Grid>
+              </Grid>
 
-          <Grid container spacing={2} sx={{ mb: 2, mt: 1 }}>
-            <Grid item xs={12}>
-              <Button
-                variant="contained"
-                fullWidth
-                type="submit"
-                sx={{
-                  backgroundColor: "#CC3329",
-                  "&:hover": { backgroundColor: "#b32b23" },
-                  color: "#FFFFFF",
-                }}
-              >
-                Crear cuenta
-              </Button>
+              <Grid container direction="row" justifyContent="end">
+                <Typography sx={{ mr: 1 }}>¿Ya tienes cuenta?</Typography>
+                <Link component={RouterLink} color="inherit" to="/auth/login" sx={{ color: "#0C1A52" }}>
+                  Ingresar
+                </Link>
+              </Grid>
             </Grid>
-          </Grid>
-
-          <Grid container direction="row" justifyContent="end">
-            <Typography sx={{ mr: 1 }}>¿Ya tienes cuenta?</Typography>
-            <Link component={RouterLink} color="inherit" to="/auth/login" sx={{ color: "#0C1A52" }}>
-              Ingresar
-            </Link>
-          </Grid>
-        </Grid>
-      </form>
+          </form>
+        </Box>
+      </Box>
     </AuthLayout>
   );
 };
