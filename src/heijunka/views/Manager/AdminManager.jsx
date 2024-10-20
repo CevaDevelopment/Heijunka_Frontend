@@ -19,8 +19,9 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Menu,
 } from "@mui/material";
-import { Assignment, ExpandMore } from "@mui/icons-material";
+import { Assignment, ExpandMore, MoreVert } from "@mui/icons-material";
 import { useSites } from "../../api";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -28,11 +29,8 @@ import dayjs from "dayjs";
 import useClients from "../../api/useClients";
 import useUsers from "../../api/useUsers";
 
-
-
 // Constante que define el tiempo límite (48 horas en milisegundos)
 const TIME_LIMIT = 48 * 60 * 60 * 1000;
-
 
 export const AdminManager = () => {
   const { sites, loading: loadingSites, error: errorSites } = useSites();
@@ -43,6 +41,7 @@ export const AdminManager = () => {
     loading: loadingClients,
     errorClients,
   } = useClients();
+
   const [selectedCollaborators, setSelectedCollaborators] = useState([]);
   const [selectedSite, setSelectedSite] = useState("");
   const [collaborators, setCollaborators] = useState([]);
@@ -56,59 +55,54 @@ export const AdminManager = () => {
   const [selectedClientsSites, setSelectedClientsSites] = useState([]);
   const [selectedCollaborator, setSelectedCollaborator] = useState("");
   const [quantity, setQuantity] = useState("");
-  const [formVisible, setFormVisible] = useState(true); // Estado para la visibilidad del formulario
+  const [formVisible, setFormVisible] = useState(true);
   const [currentTime, setCurrentTime] = useState(dayjs());
-  
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedTask, setSelectedTask] = useState(null);
+
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentTime(dayjs());
-    }, 1000); // Actualización cada segundo
+    }, 1000);
     return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
-  // Recuperar tareas desde localStorage
-  const savedTasks = localStorage.getItem("tasks");
-  const savedTime = localStorage.getItem("tasksSavedTime");
+    const savedTasks = localStorage.getItem("tasks");
+    const savedTime = localStorage.getItem("tasksSavedTime");
 
-  if (savedTasks && savedTime) {
-    const currentTime = new Date().getTime();
-    const timeDifference = currentTime - savedTime;
+    if (savedTasks && savedTime) {
+      const currentTime = new Date().getTime();
+      const timeDifference = currentTime - savedTime;
 
-    // Si han pasado menos de 48 horas, cargamos las tareas
-    if (timeDifference < TIME_LIMIT) {
-      setTasks(JSON.parse(savedTasks));
+      if (timeDifference < TIME_LIMIT) {
+        setTasks(JSON.parse(savedTasks));
 
-      // Carga valores del formulario
-      const savedSite = localStorage.getItem("selectedSite");
-      const savedCollaborators = localStorage.getItem("selectedCollaborators");
-      const savedStartTime = localStorage.getItem("startTime");
-      const savedEndTime = localStorage.getItem("endTime");
-      const savedGenerated = localStorage.getItem("generated");
+        const savedSite = localStorage.getItem("selectedSite");
+        const savedCollaborators = localStorage.getItem("selectedCollaborators");
+        const savedStartTime = localStorage.getItem("startTime");
+        const savedEndTime = localStorage.getItem("endTime");
+        const savedGenerated = localStorage.getItem("generated");
 
-      if (savedSite) setSelectedSite(savedSite);
-      if (savedCollaborators) setSelectedCollaborators(JSON.parse(savedCollaborators));
-      if (savedStartTime) setStartTime(new Date(savedStartTime));
-      if (savedEndTime) setEndTime(new Date(savedEndTime));
-      if (savedGenerated) setGenerated(JSON.parse(savedGenerated));
-      if (savedGenerated === "true") {
-        setGenerated(true);
-        setFormVisible(false);  // Ocultar el formulario si Heijunka fue generado previamente
-      } 
-
-      console.log("Formulario y tareas cargados desde localStorage");
-    } else {
-      // Si han pasado más de 48 horas, limpiamos el localStorage
-      localStorage.removeItem("tasks");
-      localStorage.removeItem("tasksSavedTime");
-      localStorage.removeItem("generated");
+        if (savedSite) setSelectedSite(savedSite);
+        if (savedCollaborators) setSelectedCollaborators(JSON.parse(savedCollaborators));
+        if (savedStartTime) setStartTime(new Date(savedStartTime));
+        if (savedEndTime) setEndTime(new Date(savedEndTime));
+        if (savedGenerated === "true") {
+          setGenerated(true);
+          setFormVisible(false);
+        }
+      } else {
+        localStorage.removeItem("tasks");
+        localStorage.removeItem("tasksSavedTime");
+        localStorage.removeItem("generated");
+      }
     }
-  }
-}, []);
+  }, []);
 
-const intSite = () => {
-  return { MCC1: 1, MCC2: 2, LOGIKA: 3 }[selectedSite] || null;
-};
+  const intSite = () => {
+    return { MCC1: 1, MCC2: 2, LOGIKA: 3 }[selectedSite] || null;
+  };
 
   useEffect(() => {
     if (selectedSite) {
@@ -130,7 +124,7 @@ const intSite = () => {
   };
 
   const toggleFormVisibility = () => {
-    setFormVisible(!formVisible); // Cambia la visibilidad del formulario
+    setFormVisible(!formVisible);
   };
 
   const handleResetTasks = () => {
@@ -138,9 +132,8 @@ const intSite = () => {
     localStorage.removeItem("tasks");
     localStorage.removeItem("tasksSavedTime");
     localStorage.removeItem("generated");
-    setFormVisible(true);  // Al resetear, mostrar el formulario de nuevo
-    setGenerated(false);    // No mostrar el Heijunka si se resetean las tareas
-    console.log("Tareas reiniciadas");
+    setFormVisible(true);
+    setGenerated(false);
   };
 
   const calculateHours = () => {
@@ -159,10 +152,9 @@ const intSite = () => {
   const hours = calculateHours();
 
   const capitalizeFirstWord = (text) => {
-    if (!text) return text; 
-    return text.charAt(0).toUpperCase() + text.slice(1); 
+    if (!text) return text;
+    return text.charAt(0).toUpperCase() + text.slice(1);
   };
-
 
   const handleOpenModal = (hour, collaborator) => {
     setSelectedHour(hour);
@@ -187,7 +179,7 @@ const intSite = () => {
         description: taskDescription,
         clients: selectedClientsSites,
         quantity: +quantity,
-        status: "pending", // Estado inicial
+        status: "pending",
       };
 
       setTasks((prevTasks) => ({
@@ -203,18 +195,12 @@ const intSite = () => {
 
       handleCloseModal();
     } else {
-      console.error(
-        "No hay hora seleccionada o descripción vacía para agregar la tarea."
-      );
+      console.error("No hay hora seleccionada o descripción vacía para agregar la tarea.");
     }
   };
 
-  
-
   const handleSaveTasks = () => {
     const currentTime = new Date().getTime();
-
-    // Guardar tareas en localStorage
     localStorage.setItem("tasks", JSON.stringify(tasks));
     localStorage.setItem("tasksSavedTime", currentTime);
     localStorage.setItem("selectedSite", selectedSite);
@@ -222,8 +208,6 @@ const intSite = () => {
     localStorage.setItem("startTime", startTime ? startTime.toISOString() : null);
     localStorage.setItem("endTime", endTime ? endTime.toISOString() : null);
     localStorage.setItem("generated", JSON.stringify(generated));
-
-    console.log("Tareas y valores del formulario guardados en localStorage");
   };
 
   const handleChangeTaskStatus = (hour, collaboratorId, index) => {
@@ -232,7 +216,6 @@ const intSite = () => {
       const task = updatedTasks[hour][collaboratorId][index];
       const currentHour = currentTime.hour();
 
-      // Actualización del estado según la hora actual
       if (task.status === "pending" && currentHour >= hour) {
         task.status = "in-progress";
       } else if (task.status === "in-progress") {
@@ -249,8 +232,32 @@ const intSite = () => {
     const currentHour = currentTime.hour();
     if (task.status === "completed") return "green";
     if (task.status === "in-progress") return "orange";
-    if (task.status === "pending" && currentHour > hour) return "red"; // Atrasado
-    return "gray"; // No ha comenzado
+    if (task.status === "pending" && currentHour > hour) return "red";
+    return "gray";
+  };
+
+  const handleOpenMenu = (event, hour, collaboratorId, index) => {
+    setAnchorEl(event.currentTarget);
+    setSelectedTask(tasks[hour][collaboratorId][index]);
+  };
+
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+    setSelectedTask(null);
+  };
+
+  const handleEditTask = (hour, collaboratorId, index) => {
+    console.log("Editando tarea", hour, collaboratorId, index);
+    handleCloseMenu();
+  };
+
+  const handleDeleteTask = (hour, collaboratorId, index) => {
+    setTasks((prevTasks) => {
+      const updatedTasks = { ...prevTasks };
+      updatedTasks[hour][collaboratorId].splice(index, 1);
+      return updatedTasks;
+    });
+    handleCloseMenu();
   };
 
   if (loadingSites) {
@@ -290,15 +297,12 @@ const intSite = () => {
         transition: "all 0.3s ease",
       }}
     >
-      {/* Botón para desplegar/ocultar el formulario */}
       <IconButton onClick={toggleFormVisibility}>
         <ExpandMore />
       </IconButton>
 
-      {/* Formulario que se esconde al generar Heijunka */}
       {formVisible && (
         <>
-          {/* Sitios */}
           <FormControl fullWidth sx={{ mb: 2 }}>
             <Select
               value={selectedSite}
@@ -323,7 +327,6 @@ const intSite = () => {
             </Select>
           </FormControl>
 
-          {/* Colaboradores */}
           <FormControl fullWidth sx={{ mb: 2 }} disabled={!selectedSite}>
             {loadingUsers ? (
               <CircularProgress />
@@ -357,7 +360,6 @@ const intSite = () => {
             )}
           </FormControl>
 
-          {/* Heijunka */}
           <Grid container spacing={2}>
             <Grid item xs={6}>
               <Box
@@ -435,7 +437,7 @@ const intSite = () => {
           </Typography>
           <Table
             sx={{
-              border: "4px solid #333", // Borde oscuro por fuera
+              border: "4px solid #333",
               borderCollapse: "separate",
               borderRadius: "15px",
             }}
@@ -488,13 +490,12 @@ const intSite = () => {
                         align="left"
                         sx={{
                           padding: "16px",
-                          borderRadius: "12px", // Bordes redondeados
-                          backgroundColor: "#f9f9f9", // Fondo suave
-                          position: "relative", // Permitir posicionamiento absoluto de los botones
-                          maxWidth: "140px", // Definir un ancho máximo para hacer la casilla más angosta
+                          borderRadius: "12px",
+                          backgroundColor: "#f9f9f9",
+                          position: "relative",
+                          maxWidth: "140px",
                         }}
                       >
-                        {/* Mostrar las tareas si existen */}
                         {tasks[hour]?.[collaboratorId]?.map((task, index) => (
                           <Box
                             key={index}
@@ -507,11 +508,10 @@ const intSite = () => {
                               border: "1px solid lightgray",
                               borderRadius: "12px",
                               marginTop: "12px",
-                              boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)", // Sombra
+                              boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
                               position: "relative",
                             }}
                           >
-                            {/* Descripción y detalles de la tarea */}
                             <Typography
                               variant="body1"
                               sx={{ fontWeight: "bold" }}
@@ -533,7 +533,6 @@ const intSite = () => {
                               Cantidad: {task.quantity}
                             </Typography>
 
-                            {/* Botón de estado */}
                             <Button
                               variant="contained"
                               sx={{
@@ -542,8 +541,8 @@ const intSite = () => {
                                 minWidth: "30px",
                                 height: "30px",
                                 position: "absolute",
-                                top: "10px", // Colocar en la parte superior
-                                right: "10px", // Alineado a la derecha
+                                top: "10px",
+                                right: "10px",
                                 borderRadius: "50%",
                               }}
                               onClick={() =>
@@ -555,7 +554,59 @@ const intSite = () => {
                               }
                             ></Button>
 
-                            {/* Icono de agregar tarea */}
+                            {task.status === "pending" && (
+                              <>
+                                <IconButton
+                                  onClick={(event) =>
+                                    handleOpenMenu(
+                                      event,
+                                      hour,
+                                      collaboratorId,
+                                      index
+                                    )
+                                  }
+                                  sx={{
+                                    position: "absolute",
+                                    top: "10px",
+                                    left: "10px",
+                                  }}
+                                >
+                                  <MoreVert />
+                                </IconButton>
+                                <Menu
+                                  anchorEl={anchorEl}
+                                  open={
+                                    Boolean(anchorEl) &&
+                                    selectedTask === task
+                                  }
+                                  onClose={handleCloseMenu}
+                                >
+                                  <MenuItem
+                                    onClick={() =>
+                                      handleEditTask(
+                                        hour,
+                                        collaboratorId,
+                                        index
+                                      )
+                                    }
+                                  >
+                                    Editar
+                                  </MenuItem>
+                                  <MenuItem
+                                    onClick={() =>
+                                      handleDeleteTask(
+                                        hour,
+                                        collaboratorId,
+                                        index
+                                      )
+                                    }
+                                  >
+                                    Eliminar
+                                  </MenuItem>
+                                </Menu>
+                              </>
+                            )}
+
                             <IconButton
                               onClick={() =>
                                 handleOpenModal(hour, collaboratorId)
@@ -572,7 +623,6 @@ const intSite = () => {
                           </Box>
                         ))}
 
-                        {/* Siempre mostrar el icono de agregar tarea centrado si no hay tareas */}
                         {!tasks[hour]?.[collaboratorId] && (
                           <IconButton
                             onClick={() =>
@@ -581,9 +631,9 @@ const intSite = () => {
                             sx={{
                               color: "primary.main",
                               position: "absolute",
-                              bottom: "50%", // Centrar verticalmente
-                              left: "50%", // Centrar horizontalmente
-                              transform: "translate(-50%, 50%)", // Ajustar el centrado
+                              bottom: "50%",
+                              left: "50%",
+                              transform: "translate(-50%, 50%)",
                             }}
                           >
                             <Assignment />
@@ -596,6 +646,7 @@ const intSite = () => {
               })}
             </TableBody>
           </Table>
+
           <Box
             sx={{
               display: "flex",
@@ -623,7 +674,6 @@ const intSite = () => {
         </Box>
       )}
 
-      {/* Modal para agregar tareas */}
       <Dialog open={openModal} onClose={handleCloseModal}>
         <DialogTitle>Agregar Tarea</DialogTitle>
         <DialogContent>
@@ -678,22 +728,23 @@ const intSite = () => {
     </Box>
   );
 };
+
 const inputStyle = {
   width: "100%",
   padding: "12px 15px",
-  border: "1px solid #007BFF", // Borde azul
+  border: "1px solid #007BFF",
   borderRadius: "4px",
   fontSize: "16px",
-  color: "#333", // Color del texto
-  backgroundColor: "#f8f9fa", // Color de fondo claro
+  color: "#333",
+  backgroundColor: "#f8f9fa",
   transition: "border-color 0.3s, box-shadow 0.3s",
   "&:focus": {
-    borderColor: "#0056b3", // Cambia el color del borde al enfocar
-    boxShadow: "0 0 5px rgba(0, 123, 255, 0.5)", // Sombra al enfocar
-    outline: "none", // Quitar el contorno por defecto
+    borderColor: "#0056b3",
+    boxShadow: "0 0 5px rgba(0, 123, 255, 0.5)",
+    outline: "none",
   },
   "&:disabled": {
-    backgroundColor: "#e9ecef", // Color ide fondo al deshabilitar
-    color: "#6c757d", // Color del textoiimport { id, mt } from 'date-fns/locale';
+    backgroundColor: "#e9ecef",
+    color: "#6c757d",
   },
 };
