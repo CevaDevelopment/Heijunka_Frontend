@@ -17,22 +17,22 @@ import SecurityIcon from '@mui/icons-material/Security';
 
 const Collaborators = ({ users, handleEditUser, handleDeleteUser, handleAssignPermissions }) => {
   return (
-    <TableContainer component={Paper} sx={{ mt: 2, boxShadow: 3 }}>
+    <TableContainer component={Paper} sx={{ mt: 2, boxShadow: 3, borderRadius: "12px", overflow: "hidden" }}>
       <Table>
-        <TableHead>
+        <TableHead sx={{ backgroundColor: "#0C1A52" }}>
           <TableRow>
-            <TableCell><Typography variant="h6" sx={{ fontWeight: 'bold' }}>Nombre</Typography></TableCell>
-            <TableCell><Typography variant="h6" sx={{ fontWeight: 'bold' }}>Apellido</Typography></TableCell>
-            <TableCell><Typography variant="h6" sx={{ fontWeight: 'bold' }}>Correo</Typography></TableCell>
-            <TableCell><Typography variant="h6" sx={{ fontWeight: 'bold' }}>Role</Typography></TableCell>
-            <TableCell><Typography variant="h6" sx={{ fontWeight: 'bold' }}>Site</Typography></TableCell>
-            <TableCell><Typography variant="h6" sx={{ fontWeight: 'bold' }}>Estado</Typography></TableCell>
-            <TableCell><Typography variant="h6" sx={{ fontWeight: 'bold' }}>Acciones</Typography></TableCell>
+            {['Nombre', 'Apellido', 'Correo', 'Role', 'Site', 'Estado', 'Acciones'].map((header) => (
+              <TableCell key={header}>
+                <Typography variant="h6" sx={{ fontWeight: "bold", color: "#FFFFFF" }}>
+                  {header}
+                </Typography>
+              </TableCell>
+            ))}
           </TableRow>
         </TableHead>
         <TableBody>
           {users.map((user) => (
-            <TableRow key={user.id}>
+            <TableRow key={user.id} hover sx={{ "&:hover": { backgroundColor: "#f5f5f5" } }}>
               <TableCell>{user.first_name}</TableCell>
               <TableCell>{user.last_name}</TableCell>
               <TableCell>{user.email}</TableCell>
@@ -42,13 +42,13 @@ const Collaborators = ({ users, handleEditUser, handleDeleteUser, handleAssignPe
                 {user.is_active ? 'Activo' : 'Inactivo'}
               </TableCell>
               <TableCell>
-                <IconButton onClick={() => handleEditUser(user)}>
+                <IconButton onClick={() => handleEditUser(user)} sx={{ color: "#0C1A52" }}>
                   <EditIcon />
                 </IconButton>
-                <IconButton onClick={() => handleDeleteUser(user.id)}>
+                <IconButton onClick={() => handleDeleteUser(user.id)} sx={{ color: "#CC3329" }}>
                   <DeleteIcon />
                 </IconButton>
-                <IconButton onClick={() => handleAssignPermissions(user.id)}>
+                <IconButton onClick={() => handleAssignPermissions(user.id)} sx={{ color: "#4C6EF5" }}>
                   <SecurityIcon />
                 </IconButton>
               </TableCell>

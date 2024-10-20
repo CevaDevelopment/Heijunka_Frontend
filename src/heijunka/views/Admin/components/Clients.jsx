@@ -16,43 +16,30 @@ import DeleteIcon from '@mui/icons-material/Delete';
 
 export const Clients = ({ clients, handleEditClient, handleDeleteClient }) => {
   return (
-    <TableContainer component={Paper} sx={{ mt: 2, boxShadow: 3 }}>
+    <TableContainer component={Paper} sx={{ mt: 2, boxShadow: 3, borderRadius: "12px", overflow: "hidden" }}>
       <Table>
-        <TableHead>
+        <TableHead sx={{ backgroundColor: "#0C1A52" }}>
           <TableRow>
-            <TableCell>
-              <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                Site
-              </Typography>
-            </TableCell>
-            <TableCell>
-              <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                Cliente
-              </Typography>
-            </TableCell>
-            <TableCell>
-              <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                Tipo de Cliente
-              </Typography>
-            </TableCell>
-            <TableCell>
-              <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                Acciones
-              </Typography>
-            </TableCell>
+            {['Site', 'Cliente', 'Tipo de Cliente', 'Acciones'].map((header) => (
+              <TableCell key={header}>
+                <Typography variant="h6" sx={{ fontWeight: "bold", color: "#FFFFFF" }}>
+                  {header}
+                </Typography>
+              </TableCell>
+            ))}
           </TableRow>
         </TableHead>
         <TableBody>
           {clients.map((client) => (
-            <TableRow key={client.id}>
+            <TableRow key={client.id} hover sx={{ "&:hover": { backgroundColor: "#f5f5f5" } }}>
               <TableCell>{client.site_name}</TableCell>
               <TableCell>{client.name}</TableCell>
               <TableCell>{client.type_name}</TableCell>
               <TableCell>
-                <IconButton onClick={() => handleEditClient(client)}>
+                <IconButton onClick={() => handleEditClient(client)} sx={{ color: "#0C1A52" }}>
                   <EditIcon />
                 </IconButton>
-                <IconButton onClick={() => handleDeleteClient(client.id)}>
+                <IconButton onClick={() => handleDeleteClient(client.id)} sx={{ color: "#CC3329" }}>
                   <DeleteIcon />
                 </IconButton>
               </TableCell>
