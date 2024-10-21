@@ -760,7 +760,7 @@ export const AdminManager = () => {
           <Button
             sx={{
               backgroundColor: "#0C1A52",
-              "&:hover": { backgroundColor: "#09123c" },
+              "&:hover": { backgroundColor: "#ffff" },
             }}
             onClick={handleAddOrEditTask}
           >
