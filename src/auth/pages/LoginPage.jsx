@@ -4,7 +4,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import { Button, Grid, Link, TextField, Box } from '@mui/material';
 import { AuthLayout } from '../layout/AuthLayout';
 import { useAuthStore, useForm } from '../../hooks';
-import logo from "../../../public/logo.png"; // Importa el logo
+import logo from "../../../public/logo.png";
 
 const loginFormFields = {
     loginEmail: "",
