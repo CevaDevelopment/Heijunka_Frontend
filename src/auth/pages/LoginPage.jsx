@@ -35,7 +35,7 @@ export const LoginPage = () => {
           justifyContent: 'center',
           alignItems: 'center',
           position: 'relative',
-          minHeight: '100vh',
+          //minHeight: '100vh',
         }}
       >
         {/* Formulario centrado */}
@@ -43,7 +43,6 @@ export const LoginPage = () => {
           sx={{
             width: '100%',
             maxWidth: '400px',
-            height: '50%',
             p: 3,
             backgroundColor: '#fff',
             borderRadius: '12px',
