@@ -1,10 +1,11 @@
 import { useEffect } from 'react';
 import Swal from 'sweetalert2';
 import { Link as RouterLink } from 'react-router-dom';
-import { Button, Grid, Link, TextField, Box, Typography } from '@mui/material';
+import { Button, Grid, Link, TextField, Box, Typography, InputAdornment } from '@mui/material';
 import { AuthLayout } from '../layout/AuthLayout';
 import { useAuthStore, useForm } from '../../hooks';
 import logo from "../../../public/logo.png";
+import { EmailOutlined, LockOutlined, PersonOutline } from '@mui/icons-material';
 
 const registerFormFields = {
   registerName: "",
@@ -34,7 +35,7 @@ export const RegisterPage = () => {
   }, [errorMessage]);
 
   return (
-    <AuthLayout title="Crear cuenta">
+    <AuthLayout title="Crear Cuenta">
       <Box
         sx={{
           display: 'flex',
@@ -49,12 +50,16 @@ export const RegisterPage = () => {
           sx={{
             width: '100%',
             maxWidth: '400px',
-            zIndex: 2, // Asegura que el formulario esté por encima del logo
+            p: 3,
+            backgroundColor: '#fff',
+            borderRadius: '12px',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+            zIndex: 2,
           }}
         >
           <form onSubmit={registerSubmit}>
             <Grid container spacing={2}>
-              <Grid item xs={12} sx={{ mt: 2 }}>
+              <Grid item xs={12}>
                 <TextField
                   label="Nombre"
                   type="text"
@@ -63,10 +68,17 @@ export const RegisterPage = () => {
                   value={registerName}
                   onChange={onInputChange}
                   fullWidth
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <PersonOutline />
+                      </InputAdornment>
+                    ),
+                  }}
                 />
               </Grid>
 
-              <Grid item xs={12} sx={{ mt: 2 }}>
+              <Grid item xs={12}>
                 <TextField
                   label="Apellido"
                   type="text"
@@ -75,10 +87,17 @@ export const RegisterPage = () => {
                   value={registerApellido}
                   onChange={onInputChange}
                   fullWidth
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <PersonOutline />
+                      </InputAdornment>
+                    ),
+                  }}
                 />
               </Grid>
 
-              <Grid item xs={12} sx={{ mt: 2 }}>
+              <Grid item xs={12}>
                 <TextField
                   label="Correo"
                   type="email"
@@ -87,10 +106,17 @@ export const RegisterPage = () => {
                   value={registerEmail}
                   onChange={onInputChange}
                   fullWidth
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <EmailOutlined />
+                      </InputAdornment>
+                    ),
+                  }}
                 />
               </Grid>
 
-              <Grid item xs={12} sx={{ mt: 2 }}>
+              <Grid item xs={12}>
                 <TextField
                   label="Contraseña"
                   type="password"
@@ -99,10 +125,17 @@ export const RegisterPage = () => {
                   value={registerPassword}
                   onChange={onInputChange}
                   fullWidth
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <LockOutlined />
+                      </InputAdornment>
+                    ),
+                  }}
                 />
               </Grid>
 
-              <Grid item xs={12} sx={{ mt: 2 }}>
+              <Grid item xs={12}>
                 <TextField
                   label="Confirmar Contraseña"
                   type="password"
@@ -111,6 +144,13 @@ export const RegisterPage = () => {
                   value={registerPasswordConfirm}
                   onChange={onInputChange}
                   fullWidth
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <LockOutlined />
+                      </InputAdornment>
+                    ),
+                  }}
                 />
               </Grid>
 
@@ -124,6 +164,7 @@ export const RegisterPage = () => {
                       backgroundColor: "#CC3329",
                       "&:hover": { backgroundColor: "#b32b23" },
                       color: "#FFFFFF",
+                      py: 1.5,
                     }}
                   >
                     Crear cuenta
@@ -133,7 +174,7 @@ export const RegisterPage = () => {
 
               <Grid container direction="row" justifyContent="end">
                 <Typography sx={{ mr: 1 }}>¿Ya tienes cuenta?</Typography>
-                <Link component={RouterLink} color="inherit" to="/auth/login" sx={{ color: "#0C1A52" }}>
+                <Link component={RouterLink} color="inherit" to="/auth/login" sx={{ color: "#0C1A52", textDecoration: 'underline' }}>
                   Ingresar
                 </Link>
               </Grid>
