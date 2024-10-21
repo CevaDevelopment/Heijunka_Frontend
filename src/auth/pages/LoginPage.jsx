@@ -12,9 +12,7 @@ const loginFormFields = {
 }
 
 export const LoginPage = () => {
-
     const { startLogin, errorMessage } = useAuthStore();
-
     const { loginEmail, loginPassword, onInputChange } = useForm(loginFormFields);
 
     const loginSubmit = (event) => {
@@ -35,15 +33,18 @@ export const LoginPage = () => {
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
+                    position: 'relative',
                     minHeight: '100vh',
-                    backgroundImage: `url(${logo})`,
-                    backgroundRepeat: 'no-repeat',
-                    backgroundSize: '50%',
-                    backgroundPosition: 'center',
-                    opacity: 0.1, // Ajusta la opacidad para crear el efecto de marca de agua
                 }}
             >
-                <Box sx={{ width: '100%', maxWidth: '400px' }}>
+                {/* Formulario centrado */}
+                <Box
+                    sx={{
+                        width: '100%',
+                        maxWidth: '400px',
+                        zIndex: 2, // Asegura que el formulario esté por encima del logo
+                    }}
+                >
                     <form onSubmit={loginSubmit}>
                         <Grid container spacing={2}>
                             <Grid item xs={12} sx={{ mt: 2 }}>
@@ -96,6 +97,18 @@ export const LoginPage = () => {
                             </Grid>
                         </Grid>
                     </form>
+                </Box>
+
+                {/* Logo como marca de agua fuera del formulario */}
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        bottom: '20px',
+                        right: '20px',
+                        opacity: 0.1,
+                    }}
+                >
+                    <img src={logo} alt="Marca de agua" style={{ width: '100px' }} />
                 </Box>
             </Box>
         </AuthLayout>

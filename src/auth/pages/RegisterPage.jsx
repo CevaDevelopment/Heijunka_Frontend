@@ -4,7 +4,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import { Button, Grid, Link, TextField, Box, Typography } from '@mui/material';
 import { AuthLayout } from '../layout/AuthLayout';
 import { useAuthStore, useForm } from '../../hooks';
-import logo from "../../../public/logo.png"; // Importa el logo
+import logo from "../../../public/logo.png";
 
 const registerFormFields = {
   registerName: "",
@@ -40,23 +40,26 @@ export const RegisterPage = () => {
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
+          position: 'relative',
           minHeight: '100vh',
-          backgroundImage: `url(${logo})`,
-          backgroundRepeat: 'no-repeat',
-          backgroundSize: '50%',
-          backgroundPosition: 'center',
-          opacity: 0.1, // Ajusta la opacidad para crear el efecto de marca de agua
         }}
       >
-        <Box sx={{ width: '100%', maxWidth: '400px' }}>
+        {/* Formulario centrado */}
+        <Box
+          sx={{
+            width: '100%',
+            maxWidth: '400px',
+            zIndex: 2, // Asegura que el formulario esté por encima del logo
+          }}
+        >
           <form onSubmit={registerSubmit}>
             <Grid container spacing={2}>
               <Grid item xs={12} sx={{ mt: 2 }}>
                 <TextField
                   label="Nombre"
                   type="text"
-                  placeholder='Nombre'
-                  name='registerName'
+                  placeholder="Nombre"
+                  name="registerName"
                   value={registerName}
                   onChange={onInputChange}
                   fullWidth
@@ -67,8 +70,8 @@ export const RegisterPage = () => {
                 <TextField
                   label="Apellido"
                   type="text"
-                  placeholder='Apellido'
-                  name='registerApellido'
+                  placeholder="Apellido"
+                  name="registerApellido"
                   value={registerApellido}
                   onChange={onInputChange}
                   fullWidth
@@ -79,8 +82,8 @@ export const RegisterPage = () => {
                 <TextField
                   label="Correo"
                   type="email"
-                  placeholder='correo@google.com'
-                  name='registerEmail'
+                  placeholder="correo@google.com"
+                  name="registerEmail"
                   value={registerEmail}
                   onChange={onInputChange}
                   fullWidth
@@ -91,8 +94,8 @@ export const RegisterPage = () => {
                 <TextField
                   label="Contraseña"
                   type="password"
-                  placeholder='Contraseña'
-                  name='registerPassword'
+                  placeholder="Contraseña"
+                  name="registerPassword"
                   value={registerPassword}
                   onChange={onInputChange}
                   fullWidth
@@ -103,8 +106,8 @@ export const RegisterPage = () => {
                 <TextField
                   label="Confirmar Contraseña"
                   type="password"
-                  placeholder='Confirmar Contraseña'
-                  name='registerPasswordConfirm'
+                  placeholder="Confirmar Contraseña"
+                  name="registerPasswordConfirm"
                   value={registerPasswordConfirm}
                   onChange={onInputChange}
                   fullWidth
@@ -136,6 +139,18 @@ export const RegisterPage = () => {
               </Grid>
             </Grid>
           </form>
+        </Box>
+
+        {/* Logo como marca de agua fuera del formulario */}
+        <Box
+          sx={{
+            position: 'absolute',
+            bottom: '20px',
+            right: '20px',
+            opacity: 0.1,
+          }}
+        >
+          <img src={logo} alt="Marca de agua" style={{ width: '100px' }} />
         </Box>
       </Box>
     </AuthLayout>
