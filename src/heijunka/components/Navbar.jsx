@@ -3,7 +3,7 @@ import { AppBar, Button, Grid, IconButton, Toolbar, Typography, Menu, MenuItem, 
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { useAuthStore } from "../../hooks";
-import logo from "../../../public/logo.png";
+import logo from "../../../public/logoWhite.png";
 
 export const Navbar = ({ drawerWidth = 0, onSelectModule }) => {
     const { startLogout } = useAuthStore();
