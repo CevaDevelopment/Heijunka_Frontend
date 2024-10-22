@@ -381,15 +381,22 @@ export const AdminManager = () => {
         position: "relative", // Necesario para el reloj
       }}
     >
-
-<Box sx={{ position: "absolute", top: 20, right: 20, textAlign: "right" }}>
-        <Typography variant="h4" sx={{ color: "#0C1A52", fontWeight: "bold" }}>
-          {getFormattedTime()}
-        </Typography>
-        <Typography variant="subtitle1" sx={{ color: "#0C1A52" }}>
-          {getFormattedDate()}
-        </Typography>
-      </Box>
+      {/* Reloj y Fecha solo se muestran cuando está generado el Heijunka */}
+      {generated && (
+        <Box
+          sx={{ position: "absolute", top: 20, right: 20, textAlign: "right" }}
+        >
+          <Typography
+            variant="h4"
+            sx={{ color: "#0C1A52", fontWeight: "bold" }}
+          >
+            {getFormattedTime()}
+          </Typography>
+          <Typography variant="subtitle1" sx={{ color: "#0C1A52" }}>
+            {getFormattedDate()}
+          </Typography>
+        </Box>
+      )}
 
       <IconButton onClick={toggleFormVisibility}>
         <ExpandMore />
@@ -504,7 +511,9 @@ export const AdminManager = () => {
             <Button
               variant="contained"
               onClick={handleGenerate}
-              disabled={!startTime || !endTime || selectedCollaborators.length === 0}
+              disabled={
+                !startTime || !endTime || selectedCollaborators.length === 0
+              }
               sx={{
                 backgroundColor: "#CC3329",
                 "&:hover": { backgroundColor: "#b32b23" },
@@ -569,7 +578,9 @@ export const AdminManager = () => {
 
                 return (
                   <TableRow key={collaboratorId}>
-                    <TableCell align="center">{collaborator?.first_name}</TableCell>
+                    <TableCell align="center">
+                      {collaborator?.first_name}
+                    </TableCell>
                     {hours.map((hour) => (
                       <TableCell
                         key={hour}
@@ -628,7 +639,11 @@ export const AdminManager = () => {
                                 alignSelf: "flex-end",
                               }}
                               onClick={() =>
-                                handleChangeTaskStatus(hour, collaboratorId, index)
+                                handleChangeTaskStatus(
+                                  hour,
+                                  collaboratorId,
+                                  index
+                                )
                               }
                             ></Button>
 
@@ -662,7 +677,11 @@ export const AdminManager = () => {
                                   </MenuItem>
                                   <MenuItem
                                     onClick={() =>
-                                      handleDeleteTask(hour, collaboratorId, index)
+                                      handleDeleteTask(
+                                        hour,
+                                        collaboratorId,
+                                        index
+                                      )
                                     }
                                   >
                                     Eliminar
@@ -675,7 +694,9 @@ export const AdminManager = () => {
 
                         {!tasks[hour]?.[collaboratorId]?.length && (
                           <IconButton
-                            onClick={() => handleOpenModal(hour, collaboratorId)}
+                            onClick={() =>
+                              handleOpenModal(hour, collaboratorId)
+                            }
                             sx={{
                               color: "#CC3329",
                               position: "absolute",
@@ -729,7 +750,9 @@ export const AdminManager = () => {
       )}
 
       <Dialog open={openModal} onClose={handleCloseModal}>
-        <DialogTitle>{editingTask ? "Editar Tarea" : "Agregar Tarea"}</DialogTitle>
+        <DialogTitle>
+          {editingTask ? "Editar Tarea" : "Agregar Tarea"}
+        </DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
