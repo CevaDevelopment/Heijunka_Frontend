@@ -335,6 +335,14 @@ export const AdminManager = () => {
     handleCloseMenu();
   };
 
+   const getFormattedTime = () => {
+    return currentTime.format("HH:mm:ss");
+  };
+
+  const getFormattedDate = () => {
+    return currentTime.format("DD MMMM YYYY");
+  };
+
   if (loadingSites) {
     return <CircularProgress />;
   }
@@ -370,8 +378,19 @@ export const AdminManager = () => {
         flexDirection: "column",
         alignItems: "center",
         transition: "all 0.3s ease",
+        position: "relative", // Necesario para el reloj
       }}
     >
+
+<Box sx={{ position: "absolute", top: 20, right: 20, textAlign: "right" }}>
+        <Typography variant="h4" sx={{ color: "#0C1A52", fontWeight: "bold" }}>
+          {getFormattedTime()}
+        </Typography>
+        <Typography variant="subtitle1" sx={{ color: "#0C1A52" }}>
+          {getFormattedDate()}
+        </Typography>
+      </Box>
+
       <IconButton onClick={toggleFormVisibility}>
         <ExpandMore />
       </IconButton>
