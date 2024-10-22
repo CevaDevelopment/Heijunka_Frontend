@@ -67,10 +67,11 @@ export const Navbar = ({ drawerWidth = 0, onSelectModule }) => {
                   width: "2px",
                   height: "40px",
                   marginRight: "10px",
+                  marginTop: "8px",
                 }}
               />
               <Typography
-                variant="h4"
+                variant="h3"
                 noWrap
                 component="div"
                 sx={{
