@@ -89,10 +89,10 @@ const TaskModal = ({
           onClick={handleAddTask}
           fullWidth
           sx={{
-            backgroundColor: "#FFFFFF", 
-            color: "#0C1A52",
+            backgroundColor: "#0C1A52", // Azul oscuro
+            color: "#FFFFFF", // Texto blanco
             "&:hover": {
-              backgroundColor: "#091A40", 
+              backgroundColor: "#091A40", // Azul más oscuro al hacer hover
             },
             mt: 2,
           }}
