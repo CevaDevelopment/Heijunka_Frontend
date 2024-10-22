@@ -1,5 +1,5 @@
 import { LogoutOutlined, MenuOutlined, Dashboard, Group } from "@mui/icons-material";
-import { AppBar, Button, Grid, IconButton, Toolbar, Typography, Menu, MenuItem, Box } from "@mui/material";
+import { AppBar, Button, Grid, IconButton, Toolbar, Typography, Menu, MenuItem, Box, Divider } from "@mui/material";
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { useAuthStore } from "../../hooks";
@@ -51,12 +51,23 @@ export const Navbar = ({ drawerWidth = 0, onSelectModule }) => {
             justifyContent="space-between"
             alignItems="center"
           >
-            {/* Logo */}
+            {/* Logo y línea divisora */}
             <Box sx={{ display: "flex", alignItems: "center" }}>
               <img
                 src={logo}
                 alt="Heijunka Ceva Logo"
                 style={{ width: "140px", height: "auto", marginRight: "10px" }}
+              />
+              {/* Línea vertical blanca */}
+              <Divider
+                orientation="vertical"
+                flexItem
+                sx={{
+                  backgroundColor: "#FFFFFF",
+                  width: "2px",
+                  height: "40px",
+                  marginRight: "10px",
+                }}
               />
               <Typography
                 variant="h4"
@@ -76,7 +87,7 @@ export const Navbar = ({ drawerWidth = 0, onSelectModule }) => {
             </Box>
 
             {/* Botones de Admin y Manager */}
-            <Box sx={{ display: { xs: "none", sm: "flex" }, gap: 2 }}>
+            <Box sx={{ display: { xs: "none", sm: "flex" }, gap: 2, justifyContent: "center" }}>
               {/* Botón Admin */}
               <Button
                 startIcon={<Dashboard />} // Icono antes del texto
