@@ -68,6 +68,7 @@ export const Navbar = ({ drawerWidth = 0, onSelectModule }) => {
                   height: "40px",
                   marginRight: "10px",
                   marginTop: "10px",
+                  marginLeft: "10px",
                 }}
               />
               <Typography
@@ -88,7 +89,7 @@ export const Navbar = ({ drawerWidth = 0, onSelectModule }) => {
             </Box>
 
             {/* Botones de Admin y Manager */}
-            <Box sx={{ display: { xs: "none", sm: "flex" }, gap: 2, justifyContent: "center" }}>
+            <Box sx={{ display: { xs: "none", sm: "flex" }, gap: 2, justifyContent: "center", mr: 3}}>
               {/* Botón Admin */}
               <Button
                 startIcon={<Dashboard />} // Icono antes del texto

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
 import { Modal, Box, Button, TextField, Typography, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 
 const TaskModal = ({
@@ -22,7 +23,7 @@ const TaskModal = ({
   const [hasFetched, setHasFetched] = useState(false);
 
   useEffect(() => {
-    if (open && siteId && !hasFetched)  { 
+    if (open && siteId && !hasFetched) { 
       fetchClientsBySite(siteId);
       setHasFetched(true);
     }
@@ -71,21 +72,30 @@ const TaskModal = ({
           margin="normal"
           inputProps={{ min: 1 }}
         />
-        <FormControl fullWidth>
-                    <Select
-                        value={taskStatus}
-                        onChange={(e) => setTaskStatus(e.target.value)}
-                    >
-                        <MenuItem value="not started">No Iniciada</MenuItem>
-                        <MenuItem value="in progress">En Progreso</MenuItem>
-                        <MenuItem value="completed">Finalizada</MenuItem>
-                    </Select>
-                </FormControl>
+        <FormControl fullWidth variant="outlined" margin="normal">
+          <InputLabel>Estado de la Tarea</InputLabel>
+          <Select
+            value={taskStatus}
+            onChange={(e) => setTaskStatus(e.target.value)}
+            label="Estado de la Tarea"
+          >
+            <MenuItem value="not started">No Iniciada</MenuItem>
+            <MenuItem value="in progress">En Progreso</MenuItem>
+            <MenuItem value="completed">Finalizada</MenuItem>
+          </Select>
+        </FormControl>
         <Button
           variant="contained"
-          color="primary"
           onClick={handleAddTask}
           fullWidth
+          sx={{
+            backgroundColor: "#0C1A52", // Azul oscuro
+            color: "#FFFFFF", // Texto blanco
+            "&:hover": {
+              backgroundColor: "#091A40", // Azul más oscuro al hacer hover
+            },
+            mt: 2,
+          }}
           disabled={loading || !taskDescription || !client || quantity <= 0}
         >
           Agregar
@@ -93,6 +103,30 @@ const TaskModal = ({
       </Box>
     </Modal>
   );
+};
+
+TaskModal.propTypes = {
+  open: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  handleAddTask: PropTypes.func.isRequired,
+  taskDescription: PropTypes.string.isRequired,
+  setTaskDescription: PropTypes.func.isRequired,
+  client: PropTypes.string.isRequired,
+  setClient: PropTypes.func.isRequired,
+  quantity: PropTypes.number.isRequired,
+  setQuantity: PropTypes.func.isRequired,
+  clients: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      name: PropTypes.string.isRequired,
+    })
+  ).isRequired,
+  siteId: PropTypes.number.isRequired,
+  fetchClientsBySite: PropTypes.func.isRequired,
+  loading: PropTypes.bool.isRequired,
+  error: PropTypes.object,
+  taskStatus: PropTypes.string.isRequired,
+  setTaskStatus: PropTypes.func.isRequired,
 };
 
 export default TaskModal;
