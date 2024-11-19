@@ -21,8 +21,7 @@ import {
   DialogTitle,
   Menu,
 } from "@mui/material";
-import { Assignment, ExpandMore, MoreVert } from "@mui/icons-material";
-
+import { Add, Assignment, ExpandMore, MoreVert } from "@mui/icons-material";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import dayjs from "dayjs";
@@ -59,6 +58,7 @@ export const AdminManager = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedTask, setSelectedTask] = useState(null);
   const [editingTask, setEditingTask] = useState(null);
+  const [iconStates, setIconStates] = useState({}); // Estado para íconos por celda
 
   const TIME_LIMIT = 48 * 60 * 60 * 1000;
 
@@ -81,13 +81,16 @@ export const AdminManager = () => {
         setTasks(JSON.parse(savedTasks));
 
         const savedSite = localStorage.getItem("selectedSite");
-        const savedCollaborators = localStorage.getItem("selectedCollaborators");
+        const savedCollaborators = localStorage.getItem(
+          "selectedCollaborators"
+        );
         const savedStartTime = localStorage.getItem("startTime");
         const savedEndTime = localStorage.getItem("endTime");
         const savedGenerated = localStorage.getItem("generated");
 
         if (savedSite) setSelectedSite(savedSite);
-        if (savedCollaborators) setSelectedCollaborators(JSON.parse(savedCollaborators));
+        if (savedCollaborators)
+          setSelectedCollaborators(JSON.parse(savedCollaborators));
         if (savedStartTime) setStartTime(new Date(savedStartTime));
         if (savedEndTime) setEndTime(new Date(savedEndTime));
         if (savedGenerated === "true") {
@@ -140,6 +143,7 @@ export const AdminManager = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         setTasks({});
+        setIconStates({});
         localStorage.removeItem("tasks");
         localStorage.removeItem("tasksSavedTime");
         localStorage.removeItem("generated");
@@ -209,19 +213,36 @@ export const AdminManager = () => {
       setTasks((prevTasks) => {
         const updatedTasks = { ...prevTasks };
 
+        if (!updatedTasks[selectedHour]) {
+          updatedTasks[selectedHour] = {};
+        }
+
+        if (!updatedTasks[selectedHour][selectedCollaborator]) {
+          updatedTasks[selectedHour][selectedCollaborator] = [];
+        }
+
+        const isDuplicate = updatedTasks[selectedHour][
+          selectedCollaborator
+        ].some(
+          (task) =>
+            task.description === newTask.description &&
+            JSON.stringify(task.clients) === JSON.stringify(newTask.clients) &&
+            task.quantity === newTask.quantity
+        );
+
         if (editingTask) {
-          const taskIndex = updatedTasks[selectedHour][selectedCollaborator].findIndex(
-            (task) => task === editingTask
-          );
+          const taskIndex = updatedTasks[selectedHour][
+            selectedCollaborator
+          ].findIndex((task) => task === editingTask);
           updatedTasks[selectedHour][selectedCollaborator][taskIndex] = newTask;
-        } else {
-          updatedTasks[selectedHour] = {
-            ...updatedTasks[selectedHour],
-            [selectedCollaborator]: [
-              ...(updatedTasks[selectedHour]?.[selectedCollaborator] || []),
-              newTask,
-            ],
-          };
+        } else if (!isDuplicate) {
+          updatedTasks[selectedHour][selectedCollaborator].push(newTask);
+
+          // Actualiza el estado del ícono para la celda específica
+          setIconStates((prevStates) => ({
+            ...prevStates,
+            [`${selectedHour}-${selectedCollaborator}`]: true,
+          }));
         }
 
         return updatedTasks;
@@ -247,8 +268,14 @@ export const AdminManager = () => {
         localStorage.setItem("tasks", JSON.stringify(tasks));
         localStorage.setItem("tasksSavedTime", currentTime);
         localStorage.setItem("selectedSite", selectedSite);
-        localStorage.setItem("selectedCollaborators", JSON.stringify(selectedCollaborators));
-        localStorage.setItem("startTime", startTime ? startTime.toISOString() : null);
+        localStorage.setItem(
+          "selectedCollaborators",
+          JSON.stringify(selectedCollaborators)
+        );
+        localStorage.setItem(
+          "startTime",
+          startTime ? startTime.toISOString() : null
+        );
         localStorage.setItem("endTime", endTime ? endTime.toISOString() : null);
         localStorage.setItem("generated", JSON.stringify(generated));
         Swal.fire("Guardado", "Las tareas han sido guardadas.", "success");
@@ -330,12 +357,15 @@ export const AdminManager = () => {
     setTasks((prevTasks) => {
       const updatedTasks = { ...prevTasks };
       updatedTasks[hour][collaboratorId].splice(index, 1);
+      if (updatedTasks[hour][collaboratorId].length === 0) {
+        delete updatedTasks[hour][collaboratorId];
+      }
       return updatedTasks;
     });
     handleCloseMenu();
   };
 
-   const getFormattedTime = () => {
+  const getFormattedTime = () => {
     return currentTime.format("HH:mm:ss");
   };
 
@@ -381,7 +411,6 @@ export const AdminManager = () => {
         position: "relative", // Necesario para el reloj
       }}
     >
-      {/* Reloj y Fecha solo se muestran cuando está generado el Heijunka */}
       {generated && (
         <Box
           sx={{ position: "absolute", top: 20, right: 20, textAlign: "right" }}
@@ -605,6 +634,7 @@ export const AdminManager = () => {
                               borderRadius: "12px",
                               marginTop: "12px",
                               boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
+                              position: "relative",
                             }}
                           >
                             <Typography
@@ -647,67 +677,61 @@ export const AdminManager = () => {
                               }
                             ></Button>
 
-                            {task.status === "pending" && (
-                              <>
-                                <IconButton
-                                  onClick={(event) =>
-                                    handleOpenMenu(event, task)
-                                  }
-                                  sx={{
-                                    position: "absolute",
-                                    top: "10px",
-                                    right: "10px",
-                                  }}
-                                >
-                                  <MoreVert />
-                                </IconButton>
-                                <Menu
-                                  anchorEl={anchorEl}
-                                  open={
-                                    Boolean(anchorEl) && selectedTask === task
-                                  }
-                                  onClose={handleCloseMenu}
-                                >
-                                  <MenuItem
-                                    onClick={() =>
-                                      handleEditTask(hour, collaboratorId, task)
-                                    }
-                                  >
-                                    Editar
-                                  </MenuItem>
-                                  <MenuItem
-                                    onClick={() =>
-                                      handleDeleteTask(
-                                        hour,
-                                        collaboratorId,
-                                        index
-                                      )
-                                    }
-                                  >
-                                    Eliminar
-                                  </MenuItem>
-                                </Menu>
-                              </>
-                            )}
+                            <IconButton
+                              onClick={(event) => handleOpenMenu(event, task)}
+                              sx={{
+                                position: "absolute",
+                                top: "10px",
+                                right: "10px",
+                              }}
+                            >
+                              <MoreVert />
+                            </IconButton>
+                            <Menu
+                              anchorEl={anchorEl}
+                              open={Boolean(anchorEl) && selectedTask === task}
+                              onClose={handleCloseMenu}
+                            >
+                              <MenuItem
+                                onClick={() =>
+                                  handleEditTask(hour, collaboratorId, task)
+                                }
+                              >
+                                Editar
+                              </MenuItem>
+                              <MenuItem
+                                onClick={() =>
+                                  handleDeleteTask(hour, collaboratorId, index)
+                                }
+                              >
+                                Eliminar
+                              </MenuItem>
+                            </Menu>
                           </Box>
                         ))}
 
-                        {!tasks[hour]?.[collaboratorId]?.length && (
-                          <IconButton
-                            onClick={() =>
-                              handleOpenModal(hour, collaboratorId)
-                            }
-                            sx={{
-                              color: "#CC3329",
-                              position: "absolute",
-                              bottom: "50%",
-                              left: "50%",
-                              transform: "translate(-50%, 50%)",
-                            }}
-                          >
+                        <IconButton
+                          onClick={() => handleOpenModal(hour, collaboratorId)}
+                          sx={{
+                            color: iconStates[`${hour}-${collaboratorId}`]
+                              ? "#0C1A52"
+                              : "#CC3329", // Cambia el color basado en el estado
+                            position: "absolute",
+                            bottom: "8px", // Posición inferior
+                            left: "50%", // Posición izquierda
+                            "&:hover": {
+                              backgroundColor: "rgba(204, 51, 41, 0.1)", // Efecto hover para el ícono
+                            },
+                            display: "block", // Siempre visible para agregar tarea
+                          }}
+                        >
+                          {iconStates[`${hour}-${collaboratorId}`] ? (
+                            <Add />
+                          ) : (
                             <Assignment />
-                          </IconButton>
-                        )}
+                          )}{" "}
+                          {/* Muestra Add si hay tarea */}
+                        </IconButton>
                       </TableCell>
                     ))}
                   </TableRow>
