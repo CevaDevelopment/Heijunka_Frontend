@@ -15,15 +15,16 @@ import {
 
 // Mapeo de site_name a site_id y type_name a type_id
 const siteMapping = {
-  'MCC1': 1,
-  'MCC2': 2,
+  'MCC GREEN 1': 1,
+  'MCC GREEN 2': 2,
   'LOGIKA': 3,
 };
 
 const typeMapping = {
-  'mono': 1,
-  'multi': 2,
+  'Mono Cliente': 1,
+  'Multi Cliente': 2,
 };
+
 
 export const ModalEditClients = ({ open, handleClose, handleEditClient, clientToEdit }) => {
   const [newSite, setNewSite] = useState('');
