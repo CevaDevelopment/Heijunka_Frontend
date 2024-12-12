@@ -19,13 +19,15 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Menu,
 } from "@mui/material";
-import { Assignment } from "@mui/icons-material";
-import { useSites } from "../../api";
-import { useUsers } from "../../api/useUsers";
+import { Add, Assignment, ExpandMore, MoreVert } from "@mui/icons-material";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import dayjs from "dayjs";
+import Swal from "sweetalert2";
+import { useSites } from "../../api";
+import useUsers from "../../api/useUsers";
 import useClients from "../../api/useClients";
 
 export const AdminManager = () => {
@@ -37,6 +39,7 @@ export const AdminManager = () => {
     loading: loadingClients,
     errorClients,
   } = useClients();
+
   const [selectedCollaborators, setSelectedCollaborators] = useState([]);
   const [selectedSite, setSelectedSite] = useState("");
   const [collaborators, setCollaborators] = useState([]);
@@ -50,6 +53,57 @@ export const AdminManager = () => {
   const [selectedClientsSites, setSelectedClientsSites] = useState([]);
   const [selectedCollaborator, setSelectedCollaborator] = useState("");
   const [quantity, setQuantity] = useState("");
+  const [formVisible, setFormVisible] = useState(true);
+  const [currentTime, setCurrentTime] = useState(dayjs());
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [editingTask, setEditingTask] = useState(null);
+  const [iconStates, setIconStates] = useState({}); // Estado para íconos por celda
+
+  const TIME_LIMIT = 48 * 60 * 60 * 1000;
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(dayjs());
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const savedTasks = localStorage.getItem("tasks");
+    const savedTime = localStorage.getItem("tasksSavedTime");
+
+    if (savedTasks && savedTime) {
+      const currentTime = new Date().getTime();
+      const timeDifference = currentTime - savedTime;
+
+      if (timeDifference < TIME_LIMIT) {
+        setTasks(JSON.parse(savedTasks));
+
+        const savedSite = localStorage.getItem("selectedSite");
+        const savedCollaborators = localStorage.getItem(
+          "selectedCollaborators"
+        );
+        const savedStartTime = localStorage.getItem("startTime");
+        const savedEndTime = localStorage.getItem("endTime");
+        const savedGenerated = localStorage.getItem("generated");
+
+        if (savedSite) setSelectedSite(savedSite);
+        if (savedCollaborators)
+          setSelectedCollaborators(JSON.parse(savedCollaborators));
+        if (savedStartTime) setStartTime(new Date(savedStartTime));
+        if (savedEndTime) setEndTime(new Date(savedEndTime));
+        if (savedGenerated === "true") {
+          setGenerated(true);
+          setFormVisible(false);
+        }
+      } else {
+        localStorage.removeItem("tasks");
+        localStorage.removeItem("tasksSavedTime");
+        localStorage.removeItem("generated");
+      }
+    }
+  }, []);
 
   const intSite = () => {
     return { MCC1: 1, MCC2: 2, LOGIKA: 3 }[selectedSite] || null;
@@ -65,11 +119,39 @@ export const AdminManager = () => {
   }, [selectedSite, filterCollaboratorsBySite]);
 
   const handleGenerate = () => {
-    if (selectedCollaborators.length > 0) {
+    if (selectedCollaborators.length > 0 && startTime && endTime) {
       setGenerated(true);
+      setFormVisible(false);
+      localStorage.setItem("generated", true);
     } else {
       console.error("No hay colaboradores seleccionados.");
     }
+  };
+
+  const toggleFormVisibility = () => {
+    setFormVisible(!formVisible);
+  };
+
+  const handleResetTasks = () => {
+    Swal.fire({
+      title: "¿Estás seguro?",
+      text: "Esto eliminará todas las tareas generadas.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Sí, reiniciar",
+      cancelButtonText: "Cancelar",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setTasks({});
+        setIconStates({});
+        localStorage.removeItem("tasks");
+        localStorage.removeItem("tasksSavedTime");
+        localStorage.removeItem("generated");
+        setFormVisible(true);
+        setGenerated(false);
+        Swal.fire("Reiniciado", "Las tareas han sido reiniciadas.", "success");
+      }
+    });
   };
 
   const calculateHours = () => {
@@ -85,21 +167,30 @@ export const AdminManager = () => {
     return [];
   };
 
-  const capitalizeFirstWord = (text) => {
-    if (!text) return text; // Verificar que el texto no esté vacío
-    return text.charAt(0).toUpperCase() + text.slice(1); // Convertir la primera letra a mayúscula
-  };
-
   const hours = calculateHours();
 
-  const handleOpenModal = (hour, collaborator) => {
+  const capitalizeFirstWord = (text) => {
+    if (!text) return text;
+    return text.charAt(0).toUpperCase() + text.slice(1);
+  };
+
+  const handleOpenModal = (hour, collaborator, taskToEdit = null) => {
     setSelectedHour(hour);
     setSelectedCollaborator(collaborator);
+    setEditingTask(taskToEdit);
+
+    if (taskToEdit) {
+      setTaskDescription(taskToEdit.description);
+      setSelectedClientsSites(taskToEdit.clients);
+      setQuantity(taskToEdit.quantity);
+    } else {
+      setTaskDescription("");
+      setSelectedClientsSites([]);
+      setQuantity("");
+    }
+
     setOpenModal(true);
     handleClientsSites();
-    setSelectedClientsSites([]);
-    setTaskDescription("");
-    setQuantity("");
   };
 
   const handleCloseModal = () => {
@@ -107,60 +198,179 @@ export const AdminManager = () => {
     setTaskDescription("");
     setSelectedClientsSites([]);
     setQuantity("");
+    setEditingTask(null);
   };
 
-  const handleAddTask = () => {
+  const handleAddOrEditTask = () => {
     if (selectedHour && taskDescription && selectedClientsSites.length > 0) {
       const newTask = {
         description: taskDescription,
         clients: selectedClientsSites,
         quantity: +quantity,
-        status: "pending", // Estado inicial
+        status: "pending",
       };
 
-      setTasks((prevTasks) => ({
-        ...prevTasks,
-        [selectedHour]: {
-          ...prevTasks[selectedHour],
-          [selectedCollaborator]: [
-            ...(prevTasks[selectedHour]?.[selectedCollaborator] || []),
-            newTask,
-          ],
-        },
-      }));
+      setTasks((prevTasks) => {
+        const updatedTasks = { ...prevTasks };
+
+        if (!updatedTasks[selectedHour]) {
+          updatedTasks[selectedHour] = {};
+        }
+
+        if (!updatedTasks[selectedHour][selectedCollaborator]) {
+          updatedTasks[selectedHour][selectedCollaborator] = [];
+        }
+
+        const isDuplicate = updatedTasks[selectedHour][
+          selectedCollaborator
+        ].some(
+          (task) =>
+            task.description === newTask.description &&
+            JSON.stringify(task.clients) === JSON.stringify(newTask.clients) &&
+            task.quantity === newTask.quantity
+        );
+
+        if (editingTask) {
+          const taskIndex = updatedTasks[selectedHour][
+            selectedCollaborator
+          ].findIndex((task) => task === editingTask);
+          updatedTasks[selectedHour][selectedCollaborator][taskIndex] = newTask;
+        } else if (!isDuplicate) {
+          updatedTasks[selectedHour][selectedCollaborator].push(newTask);
+
+          // Actualiza el estado del ícono para la celda específica
+          setIconStates((prevStates) => ({
+            ...prevStates,
+            [`${selectedHour}-${selectedCollaborator}`]: true,
+          }));
+        }
+
+        return updatedTasks;
+      });
 
       handleCloseModal();
     } else {
-      console.error(
-        "No hay hora seleccionada o descripción vacía para agregar la tarea."
-      );
+      console.error("Faltan datos para agregar o editar la tarea.");
     }
   };
 
-  const handleResetTasks = () => {
-    setTasks({});
-  };
-
   const handleSaveTasks = () => {
-    console.log("Tareas guardadas", tasks);
+    Swal.fire({
+      title: "¿Guardar cambios?",
+      text: "Esto guardará las tareas en progreso.",
+      icon: "info",
+      showCancelButton: true,
+      confirmButtonText: "Guardar",
+      cancelButtonText: "Cancelar",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const currentTime = new Date().getTime();
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+        localStorage.setItem("tasksSavedTime", currentTime);
+        localStorage.setItem("selectedSite", selectedSite);
+        localStorage.setItem(
+          "selectedCollaborators",
+          JSON.stringify(selectedCollaborators)
+        );
+        localStorage.setItem(
+          "startTime",
+          startTime ? startTime.toISOString() : null
+        );
+        localStorage.setItem("endTime", endTime ? endTime.toISOString() : null);
+        localStorage.setItem("generated", JSON.stringify(generated));
+        Swal.fire("Guardado", "Las tareas han sido guardadas.", "success");
+      }
+    });
   };
 
   const handleChangeTaskStatus = (hour, collaboratorId, index) => {
+    const task = tasks[hour][collaboratorId][index];
+
+    if (task.status === "pending") {
+      Swal.fire({
+        title: "¿Quieres iniciar esta tarea?",
+        text: "Una vez iniciada, la tarea pasará a estar en progreso.",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Sí, iniciar",
+        cancelButtonText: "Cancelar",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          setTasks((prevTasks) => {
+            const updatedTasks = { ...prevTasks };
+            updatedTasks[hour][collaboratorId][index].status = "in-progress";
+            return updatedTasks;
+          });
+        }
+      });
+    } else if (task.status === "in-progress") {
+      Swal.fire({
+        title: "¿Quieres finalizar esta tarea?",
+        text: "Una vez finalizada, no podrás volver a cambiar su estado.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sí, finalizar",
+        cancelButtonText: "Cancelar",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          setTasks((prevTasks) => {
+            const updatedTasks = { ...prevTasks };
+            updatedTasks[hour][collaboratorId][index].status = "completed";
+            return updatedTasks;
+          });
+        }
+      });
+    } else {
+      Swal.fire({
+        title: "Esta tarea ya está completada.",
+        text: "No puedes cambiar el estado de una tarea completada.",
+        icon: "info",
+        confirmButtonText: "Entendido",
+      });
+    }
+  };
+
+  const getTaskButtonColor = (task, hour) => {
+    const currentHour = currentTime.hour();
+    if (task.status === "completed") return "green";
+    if (task.status === "in-progress") return "orange";
+    if (task.status === "pending" && currentHour > hour) return "red";
+    return "gray";
+  };
+
+  const handleOpenMenu = (event, task) => {
+    setAnchorEl(event.currentTarget);
+    setSelectedTask(task);
+  };
+
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+    setSelectedTask(null);
+  };
+
+  const handleEditTask = (hour, collaboratorId, task) => {
+    handleOpenModal(hour, collaboratorId, task);
+    handleCloseMenu();
+  };
+
+  const handleDeleteTask = (hour, collaboratorId, index) => {
     setTasks((prevTasks) => {
       const updatedTasks = { ...prevTasks };
-      const task = updatedTasks[hour][collaboratorId][index];
-
-      // Cambia el estado cíclicamente
-      if (task.status === "pending") {
-        task.status = "in-progress";
-      } else if (task.status === "in-progress") {
-        task.status = "completed";
-      } else {
-        task.status = "pending";
+      updatedTasks[hour][collaboratorId].splice(index, 1);
+      if (updatedTasks[hour][collaboratorId].length === 0) {
+        delete updatedTasks[hour][collaboratorId];
       }
-
       return updatedTasks;
     });
+    handleCloseMenu();
+  };
+
+  const getFormattedTime = () => {
+    return currentTime.format("HH:mm:ss");
+  };
+
+  const getFormattedDate = () => {
+    return currentTime.format("DD MMMM YYYY");
   };
 
   if (loadingSites) {
@@ -197,142 +407,178 @@ export const AdminManager = () => {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
+        transition: "all 0.3s ease",
+        position: "relative", // Necesario para el reloj
       }}
     >
-      {/* Sitios */}
-      <FormControl fullWidth sx={{ mb: 2 }}>
-        <Select
-          value={selectedSite}
-          onChange={(e) => setSelectedSite(e.target.value)}
-          displayEmpty
-          inputProps={{ "aria-label": "Seleccionar Sitio" }}
-          sx={{
-            mb: 2,
-            borderRadius: 2,
-            backgroundColor: "#f5f5f5",
-            padding: "8px",
-          }}
+      {generated && (
+        <Box
+          sx={{ position: "absolute", top: 20, right: 20, textAlign: "right" }}
         >
-          <MenuItem value="" disabled>
-            Seleccionar Sitio
-          </MenuItem>
-          {sites.map((site) => (
-            <MenuItem key={site.id} value={site.name}>
-              {site.name}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-
-      {/* Colaboradores */}
-      <FormControl fullWidth sx={{ mb: 2 }} disabled={!selectedSite}>
-        {loadingUsers ? (
-          <CircularProgress />
-        ) : (
-          <Select
-            multiple
-            value={selectedCollaborators}
-            onChange={(e) => setSelectedCollaborators(e.target.value)}
-            displayEmpty
-            inputProps={{ "aria-label": "Seleccionar Colaborador" }}
-            sx={{
-              mb: 2,
-              borderRadius: 2,
-              backgroundColor: "#f5f5f5",
-              padding: "8px",
-            }}
+          <Typography
+            variant="h4"
+            sx={{ color: "#0C1A52", fontWeight: "bold" }}
           >
-            <MenuItem value="" disabled>
-              Seleccionar Colaboradores
-            </MenuItem>
-            {collaborators.length > 0 ? (
-              collaborators.map((collaborator) => (
-                <MenuItem key={collaborator.id} value={collaborator.id}>
-                  {collaborator.first_name}
+            {getFormattedTime()}
+          </Typography>
+          <Typography variant="subtitle1" sx={{ color: "#0C1A52" }}>
+            {getFormattedDate()}
+          </Typography>
+        </Box>
+      )}
+
+      <IconButton onClick={toggleFormVisibility}>
+        <ExpandMore />
+      </IconButton>
+
+      {formVisible && (
+        <>
+          <FormControl fullWidth sx={{ mb: 2 }}>
+            <Select
+              value={selectedSite}
+              onChange={(e) => setSelectedSite(e.target.value)}
+              displayEmpty
+              inputProps={{ "aria-label": "Seleccionar Sitio" }}
+              sx={{
+                mb: 2,
+                borderRadius: 2,
+                backgroundColor: "#f5f5f5",
+                padding: "8px",
+              }}
+            >
+              <MenuItem value="" disabled>
+                Seleccionar Sitio
+              </MenuItem>
+              {sites.map((site) => (
+                <MenuItem key={site.id} value={site.name}>
+                  {site.name}
                 </MenuItem>
-              ))
+              ))}
+            </Select>
+          </FormControl>
+
+          <FormControl fullWidth sx={{ mb: 2 }} disabled={!selectedSite}>
+            {loadingUsers ? (
+              <CircularProgress />
             ) : (
-              <MenuItem disabled>No hay colaboradores disponibles</MenuItem>
+              <Select
+                multiple
+                value={selectedCollaborators}
+                onChange={(e) => setSelectedCollaborators(e.target.value)}
+                displayEmpty
+                inputProps={{ "aria-label": "Seleccionar Colaborador" }}
+                sx={{
+                  mb: 2,
+                  borderRadius: 2,
+                  backgroundColor: "#f5f5f5",
+                  padding: "8px",
+                }}
+              >
+                <MenuItem value="" disabled>
+                  Seleccionar Colaboradores
+                </MenuItem>
+                {collaborators.length > 0 ? (
+                  collaborators.map((collaborator) => (
+                    <MenuItem key={collaborator.id} value={collaborator.id}>
+                      {collaborator.first_name}
+                    </MenuItem>
+                  ))
+                ) : (
+                  <MenuItem disabled>No hay colaboradores disponibles</MenuItem>
+                )}
+              </Select>
             )}
-          </Select>
-        )}
-      </FormControl>
+          </FormControl>
 
-      {/* Heijunka */}
-      <Grid container spacing={2}>
-        <Grid item xs={6}>
-          <Box
-            sx={{ backgroundColor: "#f5f5f5", borderRadius: 2, padding: "8px" }}
-          >
-            <DatePicker
-              selected={startTime}
-              onChange={(date) => setStartTime(date)}
-              showTimeSelect
-              showTimeSelectOnly
-              timeIntervals={60}
-              timeCaption="Inicio"
-              dateFormat="HH:mm"
-              placeholderText="Hora de Inicio"
-              customInput={<input readOnly style={inputStyle} />}
-            />
+          <Grid container spacing={2}>
+            <Grid item xs={6}>
+              <Box
+                sx={{
+                  backgroundColor: "#f5f5f5",
+                  borderRadius: 2,
+                  padding: "8px",
+                }}
+              >
+                <DatePicker
+                  selected={startTime}
+                  onChange={(date) => setStartTime(date)}
+                  showTimeSelect
+                  showTimeSelectOnly
+                  timeIntervals={60}
+                  timeCaption="Inicio"
+                  dateFormat="HH:mm"
+                  placeholderText="Hora de Inicio"
+                  customInput={<TextField variant="outlined" fullWidth />}
+                />
+              </Box>
+            </Grid>
+
+            <Grid item xs={6}>
+              <Box
+                sx={{
+                  backgroundColor: "#f5f5f5",
+                  borderRadius: 2,
+                  padding: "8px",
+                }}
+              >
+                <DatePicker
+                  selected={endTime}
+                  onChange={(date) => setEndTime(date)}
+                  showTimeSelect
+                  showTimeSelectOnly
+                  timeIntervals={60}
+                  timeCaption="Fin"
+                  dateFormat="HH:mm"
+                  placeholderText="Hora de Fin"
+                  customInput={<TextField variant="outlined" fullWidth />}
+                />
+              </Box>
+            </Grid>
+          </Grid>
+
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+            <Button
+              variant="contained"
+              onClick={handleGenerate}
+              disabled={
+                !startTime || !endTime || selectedCollaborators.length === 0
+              }
+              sx={{
+                backgroundColor: "#CC3329",
+                "&:hover": { backgroundColor: "#b32b23" },
+              }}
+            >
+              Generar Heijunka
+            </Button>
           </Box>
-        </Grid>
-
-        <Grid item xs={6}>
-          <Box
-            sx={{ backgroundColor: "#f5f5f5", borderRadius: 2, padding: "8px" }}
-          >
-            <DatePicker
-              selected={endTime}
-              onChange={(date) => setEndTime(date)}
-              showTimeSelect
-              showTimeSelectOnly
-              timeIntervals={60}
-              timeCaption="Fin"
-              dateFormat="HH:mm"
-              placeholderText="Hora de Fin"
-              customInput={<input readOnly style={inputStyle} />}
-            />
-          </Box>
-        </Grid>
-      </Grid>
-
-      <Box
-        sx={{ display: "flex", justifyContent: "center", marginTop: "20px" }}
-      >
-        <Button
-          variant="contained"
-          onClick={handleGenerate}
-          disabled={
-            !startTime || !endTime || selectedCollaborators.length === 0
-          }
-        >
-          Generar Heijunka
-        </Button>
-      </Box>
+        </>
+      )}
 
       {generated && (
-        <Box sx={{ marginTop: "180px", width: "100%" }}>
-          <Typography variant="h4" textAlign="center" sx={{ mb: 10 }}>
+        <Box sx={{ marginTop: "60px", width: "100%" }}>
+          <Typography
+            variant="h4"
+            textAlign="center"
+            sx={{ mb: 10, color: "#0C1A52", fontWeight: "bold" }}
+          >
             Tareas Asignadas
           </Typography>
           <Table
             sx={{
-              border: "4px solid #333", // Borde oscuro por fuera
+              border: "2px solid #ddd",
               borderCollapse: "separate",
               borderRadius: "15px",
             }}
           >
             <TableHead>
-              <TableRow style={{ backgroundColor: "#f4f4f4" }}>
+              <TableRow sx={{ backgroundColor: "#0C1A52" }}>
                 <TableCell
                   align="center"
-                  style={{
+                  sx={{
                     fontSize: "18px",
                     fontWeight: "bold",
-                    color: "#333",
+                    color: "#ffffff",
                     padding: "12px 16px",
-                    borderBottom: "2px solid #ddd",
                   }}
                 >
                   Colaboradores
@@ -341,12 +587,11 @@ export const AdminManager = () => {
                   <TableCell
                     key={hour}
                     align="center"
-                    style={{
+                    sx={{
                       fontSize: "16px",
                       fontWeight: "bold",
-                      color: "#333",
+                      color: "#ffffff",
                       padding: "12px 16px",
-                      borderBottom: "2px solid #ddd",
                     }}
                   >
                     {hour}:00
@@ -371,33 +616,30 @@ export const AdminManager = () => {
                         align="left"
                         sx={{
                           padding: "16px",
-                          borderRadius: "12px", // Bordes redondeados
-                          backgroundColor: "#f9f9f9", // Fondo suave
-                          position: "relative", // Permitir posicionamiento absoluto de los botones
-                          maxWidth: "140px", // Definir un ancho máximo para hacer la casilla más angosta
+                          backgroundColor: "#f5f5f5",
+                          borderRadius: "12px",
+                          position: "relative",
+                          maxWidth: "200px",
                         }}
                       >
-                        {/* Mostrar las tareas si existen */}
                         {tasks[hour]?.[collaboratorId]?.map((task, index) => (
                           <Box
                             key={index}
                             sx={{
                               backgroundColor: "white",
-                              padding: "16px",
-                              flexDirection: "column",
+                              padding: "12px",
                               display: "flex",
-                              justifyContent: "space-between",
+                              flexDirection: "column",
                               border: "1px solid lightgray",
                               borderRadius: "12px",
                               marginTop: "12px",
-                              boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)", // Sombra
+                              boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
                               position: "relative",
                             }}
                           >
-                            {/* Descripción y detalles de la tarea */}
                             <Typography
                               variant="body1"
-                              sx={{ fontWeight: "bold" }}
+                              sx={{ fontWeight: "bold", color: "#0C1A52" }}
                             >
                               Tarea: {capitalizeFirstWord(task.description)}
                             </Typography>
@@ -416,23 +658,15 @@ export const AdminManager = () => {
                               Cantidad: {task.quantity}
                             </Typography>
 
-                            {/* Botón de estado */}
                             <Button
                               variant="contained"
                               sx={{
-                                backgroundColor:
-                                  task.status === "pending"
-                                    ? "gray"
-                                    : task.status === "in-progress"
-                                      ? "orange"
-                                      : "green",
+                                backgroundColor: getTaskButtonColor(task, hour),
                                 color: "white",
                                 minWidth: "30px",
                                 height: "30px",
-                                position: "absolute",
-                                top: "10px", // Colocar en la parte superior
-                                right: "10px", // Alineado a la derecha
                                 borderRadius: "50%",
+                                alignSelf: "flex-end",
                               }}
                               onClick={() =>
                                 handleChangeTaskStatus(
@@ -443,40 +677,61 @@ export const AdminManager = () => {
                               }
                             ></Button>
 
-                            {/* Icono de agregar tarea */}
                             <IconButton
-                              onClick={() =>
-                                handleOpenModal(hour, collaboratorId)
-                              }
+                              onClick={(event) => handleOpenMenu(event, task)}
                               sx={{
-                                color: "primary.main",
                                 position: "absolute",
-                                bottom: "10px",
+                                top: "10px",
                                 right: "10px",
                               }}
                             >
-                              <Assignment />
+                              <MoreVert />
                             </IconButton>
+                            <Menu
+                              anchorEl={anchorEl}
+                              open={Boolean(anchorEl) && selectedTask === task}
+                              onClose={handleCloseMenu}
+                            >
+                              <MenuItem
+                                onClick={() =>
+                                  handleEditTask(hour, collaboratorId, task)
+                                }
+                              >
+                                Editar
+                              </MenuItem>
+                              <MenuItem
+                                onClick={() =>
+                                  handleDeleteTask(hour, collaboratorId, index)
+                                }
+                              >
+                                Eliminar
+                              </MenuItem>
+                            </Menu>
                           </Box>
                         ))}
 
-                        {/* Siempre mostrar el icono de agregar tarea centrado si no hay tareas */}
-                        {!tasks[hour]?.[collaboratorId] && (
-                          <IconButton
-                            onClick={() =>
-                              handleOpenModal(hour, collaboratorId)
-                            }
-                            sx={{
-                              color: "primary.main",
-                              position: "absolute",
-                              bottom: "50%", // Centrar verticalmente
-                              left: "50%", // Centrar horizontalmente
-                              transform: "translate(-50%, 50%)", // Ajustar el centrado
-                            }}
-                          >
+                        <IconButton
+                          onClick={() => handleOpenModal(hour, collaboratorId)}
+                          sx={{
+                            color: iconStates[`${hour}-${collaboratorId}`]
+                              ? "#0C1A52"
+                              : "#CC3329", // Cambia el color basado en el estado
+                            position: "absolute",
+                            bottom: "8px", // Posición inferior
+                            left: "50%", // Posición izquierda
+                            "&:hover": {
+                              backgroundColor: "rgba(204, 51, 41, 0.1)", // Efecto hover para el ícono
+                            },
+                            display: "block", // Siempre visible para agregar tarea
+                          }}
+                        >
+                          {iconStates[`${hour}-${collaboratorId}`] ? (
+                            <Add />
+                          ) : (
                             <Assignment />
-                          </IconButton>
-                        )}
+                          )}{" "}
+                          {/* Muestra Add si hay tarea */}
+                        </IconButton>
                       </TableCell>
                     ))}
                   </TableRow>
@@ -484,6 +739,7 @@ export const AdminManager = () => {
               })}
             </TableBody>
           </Table>
+
           <Box
             sx={{
               display: "flex",
@@ -494,16 +750,22 @@ export const AdminManager = () => {
           >
             <Button
               variant="contained"
-              color="secondary"
+              sx={{
+                backgroundColor: "#CC3329",
+                "&:hover": { backgroundColor: "#b32b23" },
+              }}
               onClick={handleResetTasks}
             >
               Reiniciar Tareas
             </Button>
             <Button
               variant="contained"
-              color="success"
+              sx={{
+                backgroundColor: "#0C1A52",
+                ml: 2,
+                "&:hover": { backgroundColor: "#09123c" },
+              }}
               onClick={handleSaveTasks}
-              sx={{ ml: 2 }}
             >
               Guardar Tareas
             </Button>
@@ -511,9 +773,10 @@ export const AdminManager = () => {
         </Box>
       )}
 
-      {/* Modal para agregar tareas */}
       <Dialog open={openModal} onClose={handleCloseModal}>
-        <DialogTitle>Agregar Tarea</DialogTitle>
+        <DialogTitle>
+          {editingTask ? "Editar Tarea" : "Agregar Tarea"}
+        </DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
@@ -560,28 +823,17 @@ export const AdminManager = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseModal}>Cancelar</Button>
-          <Button onClick={handleAddTask}>Agregar</Button>
+          <Button
+            sx={{
+              backgroundColor: "#0C1A52",
+              "&:hover": { backgroundColor: "#ffff" },
+            }}
+            onClick={handleAddOrEditTask}
+          >
+            {editingTask ? "Editar" : "Agregar"}
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>
   );
-};
-const inputStyle = {
-  width: "100%",
-  padding: "12px 15px",
-  border: "1px solid #007BFF", // Borde azul
-  borderRadius: "4px",
-  fontSize: "16px",
-  color: "#333", // Color del texto
-  backgroundColor: "#f8f9fa", // Color de fondo claro
-  transition: "border-color 0.3s, box-shadow 0.3s",
-  "&:focus": {
-    borderColor: "#0056b3", // Cambia el color del borde al enfocar
-    boxShadow: "0 0 5px rgba(0, 123, 255, 0.5)", // Sombra al enfocar
-    outline: "none", // Quitar el contorno por defecto
-  },
-  "&:disabled": {
-    backgroundColor: "#e9ecef", // Color ide fondo al deshabilitar
-    color: "#6c757d", // Color del textoiimport { id, mt } from 'date-fns/locale';
-  },
 };

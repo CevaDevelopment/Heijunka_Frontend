@@ -1,9 +1,9 @@
 import { LogoutOutlined, MenuOutlined, Dashboard, Group } from "@mui/icons-material";
-import { AppBar, Button, Grid, IconButton, Toolbar, Typography, Menu, MenuItem, Box } from "@mui/material";
+import { AppBar, Button, Grid, IconButton, Toolbar, Typography, Menu, MenuItem, Box, Divider } from "@mui/material";
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { useAuthStore } from "../../hooks";
-import logo from "../../../public/logo.png";
+import logo from "../../../public/logoWhite.png";
 
 export const Navbar = ({ drawerWidth = 0, onSelectModule }) => {
     const { startLogout } = useAuthStore();
@@ -30,9 +30,9 @@ export const Navbar = ({ drawerWidth = 0, onSelectModule }) => {
         sx={{
           width: { sm: `calc(100% - ${drawerWidth}px)` },
           ml: { sm: `${drawerWidth}px` },
-          backgroundColor: "#293f8b ",
+          backgroundColor: "#0C1A52", // Color principal azul oscuro
           boxShadow: "none",
-          borderBottom: "2px solid #4C6EF5", // Línea decorativa para mejor estilo
+          borderBottom: "2px solid #CC3329", // Línea decorativa en rojo
         }}
       >
         <Toolbar>
@@ -51,15 +51,28 @@ export const Navbar = ({ drawerWidth = 0, onSelectModule }) => {
             justifyContent="space-between"
             alignItems="center"
           >
-            {/* Logo */}
+            {/* Logo y línea divisora */}
             <Box sx={{ display: "flex", alignItems: "center" }}>
               <img
                 src={logo}
                 alt="Heijunka Ceva Logo"
                 style={{ width: "140px", height: "auto", marginRight: "10px" }}
               />
+              {/* Línea vertical blanca */}
+              <Divider
+                orientation="vertical"
+                flexItem
+                sx={{
+                  backgroundColor: "#FFFFFF",
+                  width: "2px",
+                  height: "40px",
+                  marginRight: "10px",
+                  marginTop: "10px",
+                  marginLeft: "10px",
+                }}
+              />
               <Typography
-                variant="h4"
+                variant="h6"
                 noWrap
                 component="div"
                 sx={{
@@ -76,7 +89,7 @@ export const Navbar = ({ drawerWidth = 0, onSelectModule }) => {
             </Box>
 
             {/* Botones de Admin y Manager */}
-            <Box sx={{ display: { xs: "none", sm: "flex" }, gap: 2 }}>
+            <Box sx={{ display: { xs: "none", sm: "flex" }, gap: 2, justifyContent: "center", mr: 3}}>
               {/* Botón Admin */}
               <Button
                 startIcon={<Dashboard />} // Icono antes del texto
@@ -84,13 +97,13 @@ export const Navbar = ({ drawerWidth = 0, onSelectModule }) => {
                 sx={{
                   color: selectedSection === 0 ? "#FFFFFF" : "#A0AEC0",
                   backgroundColor:
-                    selectedSection === 0 ? "#4C6EF5" : "transparent",
+                    selectedSection === 0 ? "#CC3329" : "transparent", // Fondo rojo para seleccionado
                   borderRadius: "8px",
                   px: 2,
                   py: 1,
                   transition: "background-color 0.3s ease",
                   "&:hover": {
-                    backgroundColor: "#4C6EF5",
+                    backgroundColor: "#CC3329", // Fondo rojo al hacer hover
                     color: "#FFFFFF",
                   },
                 }}
@@ -105,13 +118,13 @@ export const Navbar = ({ drawerWidth = 0, onSelectModule }) => {
                 sx={{
                   color: selectedSection === 1 ? "#FFFFFF" : "#A0AEC0",
                   backgroundColor:
-                    selectedSection === 1 ? "#4C6EF5" : "transparent",
+                    selectedSection === 1 ? "#CC3329" : "transparent", // Fondo rojo para seleccionado
                   borderRadius: "8px",
                   px: 2,
                   py: 1,
                   transition: "background-color 0.3s ease",
                   "&:hover": {
-                    backgroundColor: "#4C6EF5",
+                    backgroundColor: "#CC3329", // Fondo rojo al hacer hover
                     color: "#FFFFFF",
                   },
                 }}
@@ -150,10 +163,12 @@ export const Navbar = ({ drawerWidth = 0, onSelectModule }) => {
               color="error"
               onClick={startLogout}
               sx={{
-                color: "#E53E3E",
+                color: "#FFFFFF",
+                backgroundColor: "#E53E3E", // Color de fondo rojo
+                borderRadius: "8px",
                 "&:hover": {
-                  backgroundColor: "#FEB2B2",
-                  color: "#1E293B",
+                  backgroundColor: "#C53030", // Más oscuro al hacer hover
+                  color: "#FFFFFF",
                 },
                 ml: 2,
               }}

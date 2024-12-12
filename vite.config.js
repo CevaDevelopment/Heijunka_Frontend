@@ -9,6 +9,8 @@ export default defineConfig({
     },
     build: {
         outDir: 'dist',
+        rollupOptions: {
+            external: ['xlsx'], // Aquí externalizamos el paquete 'xlsx'
+        },
     },
 });
-

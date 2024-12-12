@@ -1,3 +1,5 @@
 export * from './Navbar';
-export * from './SideBar';
 export * from './ModalUsers';
+export * from './ModalClients';
+export * from './ModalEditUsers';
+export * from './ModalEditClients';
