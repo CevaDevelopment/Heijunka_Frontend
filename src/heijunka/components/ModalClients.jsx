@@ -10,7 +10,7 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  TextField,  
+  TextField,
 } from "@mui/material";
 
 export const ModalClients = ({ open, handleClose, handleAddNewClient, handleEditClient, clientToEdit }) => {
@@ -18,8 +18,14 @@ export const ModalClients = ({ open, handleClose, handleAddNewClient, handleEdit
   const [newClient, setNewClient] = useState('');
   const [newClientType, setNewClientType] = useState('');
 
+  const handleCloseModal = () => {
+    clearFields();
+    handleClose();
+  };
+
   useEffect(() => {
     if (clientToEdit) {
+      console.log('Cliente a editar en ModalClients:', clientToEdit);
       setNewSite(clientToEdit.site_id || '');
       setNewClient(clientToEdit.name || '');
       setNewClientType(clientToEdit.type_id || '');
@@ -57,7 +63,7 @@ export const ModalClients = ({ open, handleClose, handleAddNewClient, handleEdit
   };
 
   return (
-    <Dialog open={open} onClose={handleClose}>
+    <Dialog open={open} onClose={handleCloseModal}>
       <DialogTitle>{clientToEdit ? "Editar Cliente" : "Agregar Cliente"}</DialogTitle>
       <DialogContent>
         <FormControl fullWidth sx={{ mb: 2 }}>
@@ -90,7 +96,7 @@ export const ModalClients = ({ open, handleClose, handleAddNewClient, handleEdit
         </FormControl>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleClose}>Cancelar</Button>
+        <Button onClick={handleCloseModal}>Cancelar</Button>
         <Button onClick={handleSubmit} variant="contained" color="primary">
           {clientToEdit ? "Actualizar" : "Agregar"}
         </Button>

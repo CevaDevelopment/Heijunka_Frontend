@@ -25,7 +25,6 @@ const typeMapping = {
   'Multi Cliente': 2,
 };
 
-
 export const ModalEditClients = ({ open, handleClose, handleEditClient, clientToEdit }) => {
   const [newSite, setNewSite] = useState('');
   const [newClient, setNewClient] = useState('');
@@ -33,34 +32,23 @@ export const ModalEditClients = ({ open, handleClose, handleEditClient, clientTo
 
   useEffect(() => {
     if (clientToEdit) {
-      // Depuramos para ver qué valores tiene clientToEdit
-      console.log('Cliente a editar:', clientToEdit);
-
-      // Mapeamos el nombre del sitio a su ID correspondiente
-      const siteId = siteMapping[clientToEdit.site_name];
-      if (siteId) {
-        setNewSite(siteId);
-      } else {
-        console.warn('No se encontró site_name en el mapeo:', clientToEdit.site_name);
-      }
-
+      console.log('Cliente a editar en ModalEditClients:', clientToEdit);
+      setNewSite(siteMapping[clientToEdit.site_name] || '');
       setNewClient(clientToEdit.name || '');
-      // Mapeamos el tipo de cliente a su ID correspondiente
-      const clientTypeId = typeMapping[clientToEdit.type_name];
-      if (clientTypeId) {
-        setNewClientType(clientTypeId);
-      } else {
-        console.warn('No se encontró type_name en el mapeo:', clientToEdit.type_name);
-      }
+      setNewClientType(typeMapping[clientToEdit.type_name] || '');
+    } else {
+      setNewSite('');
+      setNewClient('');
+      setNewClientType('');
     }
   }, [clientToEdit]);
 
   const handleSubmit = () => {
     const updatedClient = {
       id: clientToEdit.id,
-      site_id: newSite,  // Ya estamos manejando el site_id directamente
+      site_id: newSite,
       name: newClient,
-      type_id: newClientType,  // Ya estamos manejando el type_id directamente
+      type_id: newClientType,
     };
 
     handleEditClient(updatedClient);
@@ -77,8 +65,8 @@ export const ModalEditClients = ({ open, handleClose, handleEditClient, clientTo
             value={newSite}
             onChange={(e) => setNewSite(e.target.value)}
           >
-            <MenuItem value={1}>MCC1</MenuItem>
-            <MenuItem value={2}>MCC2</MenuItem>
+            <MenuItem value={1}>MCC GREEN 1</MenuItem>
+            <MenuItem value={2}>MCC GREEN 2</MenuItem>
             <MenuItem value={3}>LOGIKA</MenuItem>
           </Select>
         </FormControl>
@@ -117,7 +105,7 @@ ModalEditClients.propTypes = {
   clientToEdit: PropTypes.shape({
     id: PropTypes.number.isRequired,
     name: PropTypes.string.isRequired,
-    site_name: PropTypes.string.isRequired,  // El site_name viene en la respuesta
-    type_name: PropTypes.string.isRequired,  // El type_name viene en la respuesta
+    site_name: PropTypes.string.isRequired,
+    type_name: PropTypes.string.isRequired,
   }),
 };
