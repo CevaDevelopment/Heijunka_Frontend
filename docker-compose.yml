@@ -1,0 +1,16 @@
+version: '3.9'
+
+services:
+  frontend:
+    build: .
+    container_name: heijunka-frontend
+    ports:
+      - "8002:80"
+    environment:
+      - NODE_ENV=production
+    networks:
+      - heijunka-network
+
+networks:
+  heijunka-network:
+    driver: bridge
